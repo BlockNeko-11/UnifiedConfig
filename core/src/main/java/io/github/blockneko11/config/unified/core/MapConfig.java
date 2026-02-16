@@ -1,23 +1,18 @@
-package io.github.blockneko11.config.unified.holder;
+package io.github.blockneko11.config.unified.core;
 
 import io.github.blockneko11.config.unified.serialization.Serializer;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class MapConfigHolder implements ConfigHolder {
-    protected final Map<String, Object> config;
-    private final Serializer serializer;
+public class MapConfig extends Config {
+    private final Map<String, Object> config = new LinkedHashMap<>();
 
-    public MapConfigHolder(Serializer serializer) {
-        this.config = new LinkedHashMap<>();
-        this.serializer = serializer;
-    }
-
-    @Override
-    public Serializer getSerializer() {
-        return this.serializer;
+    private MapConfig(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
+        super(serializer, loadingAction, savingAction);
     }
 
     public boolean isEmpty() {
@@ -105,7 +100,7 @@ public class MapConfigHolder implements ConfigHolder {
         return (T) value;
     }
 
-    public void merge(MapConfigHolder holder) {
+    public void merge(MapConfig holder) {
         this.merge(holder.config);
     }
 
@@ -113,7 +108,7 @@ public class MapConfigHolder implements ConfigHolder {
         this.merge(another, true);
     }
 
-    public void merge(MapConfigHolder another, boolean replace) {
+    public void merge(MapConfig another, boolean replace) {
         this.merge(another.config, true);
     }
 
@@ -126,16 +121,26 @@ public class MapConfigHolder implements ConfigHolder {
     }
 
     @Override
-    public void deserialize(String s) {
-        this.merge(this.serializer.deserialize(s));
+    protected void load0(String loaded) {
+        this.merge(this.serializer.deserialize(loaded));
     }
 
     @Override
-    public String serialize() {
+    public String save0() {
         return this.serializer.serialize(this.config);
     }
 
     public Map<String, Object> unwrap() {
         return this.config;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder extends Config.Builder<MapConfig> {
+        private Builder() {
+            super(MapConfig::new);
+        }
     }
 }

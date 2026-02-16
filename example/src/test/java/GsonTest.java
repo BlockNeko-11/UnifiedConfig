@@ -1,13 +1,11 @@
-import io.github.blockneko11.config.unified.Config;
-import io.github.blockneko11.config.unified.holder.ObjectConfigHolder;
+import io.github.blockneko11.config.unified.core.BoundConfig;
 import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.gson.GsonSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GsonTest {
-    private static final String CONFIG = "{\n" +
+    private static final String CONFIG_1 = "{\n" +
             "  \"score\": 100,\n" +
             "  \"timestamp\": 100000000,\n" +
             "  \"temperature\": 36.5,\n" +
@@ -28,22 +26,48 @@ public class GsonTest {
             "  \"add\": \"Beijing, China\"\n" +
             "}";
 
+    private static final String CONFIG_2 = "{\n" +
+            "  \"inner\": {\n" +
+            "    \"name\": \"222\"\n" +
+            "  }\n" +
+            "}";
+
     @BeforeEach
     void setup() {
         Convertors.register(new UUIDConvertor());
     }
 
     @Test
-    void read() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(GsonSerializer.DEFAULT, TestBean.class);
-        binder.deserialize(CONFIG);
-        System.out.println(binder.get());
+    void read() {
+        BoundConfig<TestBean> c1 = BoundConfig.builder(TestBean.class)
+                .serializer(GsonSerializer.DEFAULT)
+                .loadingAction(() -> CONFIG_1)
+                .build();
+        c1.load();
+        System.out.println(c1.get());
+
+        BoundConfig<Outer> c2 = BoundConfig.builder(Outer.class)
+                .serializer(GsonSerializer.DEFAULT)
+                .loadingAction(() -> CONFIG_2)
+                .build();
+        c2.load();
+        System.out.println(c2.get());
     }
 
     @Test
-    void write() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(GsonSerializer.DEFAULT, TestBean.class);
-        binder.set(TestBean.getInstance());
-        System.out.println(binder.serialize());
+    void write() {
+        BoundConfig<TestBean> c1 = BoundConfig.builder(TestBean.class)
+                .serializer(GsonSerializer.DEFAULT)
+                .savingAction(System.out::println)
+                .build();
+        c1.set(TestBean.getInstance());
+        c1.save();
+
+        BoundConfig<Outer> c2 = BoundConfig.builder(Outer.class)
+                .serializer(GsonSerializer.DEFAULT)
+                .savingAction(System.out::println)
+                .build();
+        c2.set(new Outer());
+        c2.save();
     }
 }
