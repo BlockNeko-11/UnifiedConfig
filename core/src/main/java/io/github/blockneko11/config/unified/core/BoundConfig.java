@@ -7,7 +7,7 @@ import io.github.blockneko11.config.unified.property.Ignore;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.Serializer;
-import io.github.blockneko11.config.unified.util.reflect.ConstructorUtils;
+import io.github.blockneko11.config.unified.util.ConstructorUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,7 +177,7 @@ public class BoundConfig<T> extends Config implements Supplier<T> {
                 } else if (fType.isArray()) {
                     throw new IllegalArgumentException("use List instead of array");
                 } else if (f.isAnnotationPresent(Nest.class)) {
-                    Map<String, Object> map = save0((Class<T>) fType, (T) value);
+                    Map<String, Object> map = save0((Class) fType, value);
 
                     if (map.isEmpty()) {
                         continue;

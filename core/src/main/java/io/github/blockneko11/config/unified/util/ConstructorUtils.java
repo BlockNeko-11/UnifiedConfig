@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.util.reflect;
+package io.github.blockneko11.config.unified.util;
 
 public final class ConstructorUtils {
     public static <T> T newInstance(Class<T> clazz) {
