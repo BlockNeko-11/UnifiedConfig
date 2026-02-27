@@ -46,12 +46,16 @@ public class MapConfigHolder extends ConfigHolder {
         return clazz.cast(this.config.get(key));
     }
 
-    public <T> T get(String key, ConfigConvertor<T> convertor) throws ConfigConversionException {
+    public <T> T get(String key, ConfigConvertor<T> convertor) {
         if (!this.has(key)) {
             return null;
         }
 
-        return convertor.toTarget(this.config.get(key));
+        try {
+            return convertor.toTarget(this.config.get(key));
+        } catch (ConfigConversionException e) {
+            return null;
+        }
     }
 
     public <T> T get(String key, T defaultValue) {
