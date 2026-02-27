@@ -1,3 +1,4 @@
+import io.github.blockneko11.config.unified.conversion.UUIDConfigConvertor;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;

@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
+package io.github.blockneko11.config.unified.conversion;
 
 import java.util.UUID;
 
