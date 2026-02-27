@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.reflect.property;
+package io.github.blockneko11.config.unified.property;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Deprecated
-public @interface Id {
-    String value();
+public @interface Ignore {
 }

@@ -1,5 +1,7 @@
 package io.github.blockneko11.config.unified.source;
 
+import io.github.blockneko11.config.unified.exception.ConfigException;
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -13,12 +15,12 @@ public class StringConfigSource implements ConfigSource {
     }
 
     @Override
-    public String load() throws Exception {
+    public String load() throws ConfigException {
         return this.loader.get();
     }
 
     @Override
-    public void save(String config) throws Exception {
+    public void save(String config) throws ConfigException {
         this.saver.accept(config);
     }
 }

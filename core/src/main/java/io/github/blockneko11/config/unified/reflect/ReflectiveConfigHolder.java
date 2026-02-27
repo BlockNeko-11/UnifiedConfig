@@ -1,11 +1,11 @@
 package io.github.blockneko11.config.unified.reflect;
 
 import io.github.blockneko11.config.unified.core.ConfigHolder;
-import io.github.blockneko11.config.unified.reflect.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.reflect.conversion.ConfigConvertors;
-import io.github.blockneko11.config.unified.reflect.conversion.Convert;
-import io.github.blockneko11.config.unified.reflect.property.Ignore;
-import io.github.blockneko11.config.unified.reflect.property.Nest;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.conversion.Convert;
+import io.github.blockneko11.config.unified.property.Ignore;
+import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
@@ -46,11 +46,11 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
     }
 
     @Override
-    protected void load0(String loaded) {
+    protected void load0(String loaded) throws ConfigException {
         this.instance = load0(this.clazz, this.serializer.deserialize(loaded));
     }
 
-    private static <T> T load0(Class<T> clazz, Map<String, Object> config) {
+    private static <T> T load0(Class<T> clazz, Map<String, Object> config) throws ConfigException {
         T instance = ConstructorUtils.newInstance(clazz);
 
         for (Field f : clazz.getDeclaredFields()) {
@@ -116,8 +116,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
                     f.set(instance, convertor.toTarget(value));
                 }
-            } catch (IllegalAccessException | ConfigException e) {
-                return null;
+            } catch (IllegalAccessException e) {
+                throw new ConfigException(e);
             }
         }
 
@@ -125,11 +125,11 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
     }
 
     @Override
-    protected String save0() {
+    protected String save0() throws ConfigException {
         return this.serializer.serialize(save0(this.clazz, this.instance));
     }
 
-    private static <T> Map<String, Object> save0(Class<T> clazz, T instance) {
+    private static <T> Map<String, Object> save0(Class<T> clazz, T instance) throws ConfigException {
         if (instance == null) {
             return Collections.emptyMap();
         }
@@ -188,8 +188,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     ConfigConvertor convertor = ConfigConvertors.get(fType);
                     config.put(fName, convertor.toSerialized(value));
                 }
-            } catch (IllegalAccessException | ConfigException e) {
-                return Collections.emptyMap();
+            } catch (IllegalAccessException e) {
+                throw new ConfigException(e);
             }
         }
 

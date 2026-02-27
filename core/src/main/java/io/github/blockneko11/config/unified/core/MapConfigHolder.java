@@ -1,5 +1,6 @@
 package io.github.blockneko11.config.unified.core;
 
+import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
 
@@ -120,12 +121,12 @@ public class MapConfigHolder extends ConfigHolder {
     }
 
     @Override
-    protected void load0(String loaded) {
+    protected void load0(String loaded) throws ConfigException {
         this.merge(this.serializer.deserialize(loaded));
     }
 
     @Override
-    public String save0() {
+    public String save0() throws ConfigException {
         return this.serializer.serialize(this.config);
     }
 

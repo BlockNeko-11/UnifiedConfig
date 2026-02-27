@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.reflect.conversion;
+package io.github.blockneko11.config.unified.conversion;
 
 import java.util.HashMap;
 import java.util.Map;

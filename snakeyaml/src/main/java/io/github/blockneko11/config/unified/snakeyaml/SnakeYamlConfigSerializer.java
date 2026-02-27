@@ -1,5 +1,6 @@
 package io.github.blockneko11.config.unified.snakeyaml;
 
+import io.github.blockneko11.config.unified.exception.ConfigSerializationException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -19,12 +20,12 @@ public class SnakeYamlConfigSerializer implements ConfigSerializer {
     }
 
     @Override
-    public Map<String, Object> deserialize(String config) {
+    public Map<String, Object> deserialize(String config) throws ConfigSerializationException {
         return this.yaml.load(config);
     }
 
     @Override
-    public String serialize(Map<String, Object> config) {
+    public String serialize(Map<String, Object> config) throws ConfigSerializationException {
         return this.yaml.dumpAs(config, Tag.MAP, null);
     }
 

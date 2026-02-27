@@ -1,7 +1,9 @@
 package io.github.blockneko11.config.unified.source;
 
-public interface ConfigSource {
-    String load() throws Exception;
+import io.github.blockneko11.config.unified.exception.ConfigException;
 
-    void save(String config) throws Exception;
+public interface ConfigSource {
+    String load() throws ConfigException;
+
+    void save(String config) throws ConfigException;
 }

@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.reflect.property;
+package io.github.blockneko11.config.unified.property;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

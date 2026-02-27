@@ -1,5 +1,5 @@
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
-import io.github.blockneko11.config.unified.reflect.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;

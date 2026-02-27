@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.reflect.conversion.ConfigConvertor;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
 
 import java.util.UUID;
 
