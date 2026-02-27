@@ -17,4 +17,8 @@ public final class ConfigConvertors {
     public static boolean has(Class<?> clazz) {
         return CONVERTORS.containsKey(clazz);
     }
+
+    static {
+        register(new UUIDConfigConvertor());
+    }
 }
