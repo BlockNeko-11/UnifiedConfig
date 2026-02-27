@@ -1,8 +1,10 @@
 package io.github.blockneko11.config.unified.reflect;
 
-import io.github.blockneko11.config.unified.core.ConfigHolder;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.conversion.Convert;
+import io.github.blockneko11.config.unified.conversion.Conversion;
+import io.github.blockneko11.config.unified.core.ConfigHolder;
+import io.github.blockneko11.config.unified.core.ConfigHolderBuilder;
+import io.github.blockneko11.config.unified.exception.ReflectionException;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
@@ -61,14 +63,15 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 f.setAccessible(true);
             }
 
-            Object value = config.get(f.getName());
-            if (value == null) {
-                continue;
-            }
-
-            Class<?> fType = f.getType();
-
             try {
+                Object value = config.get(f.getName());
+                if (value == null) {
+                    f.set(instance, null);
+                    continue;
+                }
+
+                Class<?> fType = f.getType();
+
                 if (fType == int.class) {
                     f.setInt(instance, ((Number) value).intValue());
                     continue;
@@ -97,21 +100,24 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                         continue;
                     }
 
-                    Object o = load0(fType, (Map<String, Object>) value);
-                    if (o == null) {
-                        continue;
-                    }
-
-                    f.set(instance, o);
+                    f.set(instance, load0(fType, (Map<String, Object>) value));
                     continue;
                 }
 
-//                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-//                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
-//                    f.set(instance, convertor.toTarget(value));
-//                }
+                Conversion anno = f.getAnnotation(Conversion.class);
+                if (anno == null) {
+                    continue;
+                }
+
+                Class<?> valueType = value.getClass();
+                ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) ConstructorUtil.newInstance(anno.value());
+                if (!convertor.getOriginalType().isAssignableFrom(valueType)) {
+                    throw new IllegalArgumentException("config type " + valueType + " is not assignable from " + convertor.getOriginalType());
+                }
+
+                f.set(instance, convertor.deserialize(value));
             } catch (IllegalAccessException e) {
-                throw new ConfigException(e);
+                throw new ReflectionException(e);
             }
         }
 
@@ -172,14 +178,18 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     }
 
                     config.put(fName, map);
+                    continue;
                 }
 
-//                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-//                    ConfigConvertor convertor = ConfigConvertors.get(fType);
-//                    config.put(fName, convertor.toSerialized(value));
-//                }
+                Conversion anno = f.getAnnotation(Conversion.class);
+                if (anno == null) {
+                    continue;
+                }
+
+                ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) ConstructorUtil.newInstance(anno.value());
+                config.put(fName, convertor.serialize(value));
             } catch (IllegalAccessException e) {
-                throw new ConfigException(e);
+                throw new ReflectionException(e);
             }
         }
 
@@ -190,7 +200,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
         return new Builder<>(clazz);
     }
 
-    public static final class Builder<T> extends ConfigHolder.Builder<ReflectiveConfigHolder<T>> {
+    public static final class Builder<T> extends ConfigHolderBuilder<ReflectiveConfigHolder<T>> {
         private Builder(Class<T> clazz) {
             super((serializer, source) ->
                     new ReflectiveConfigHolder<>(clazz, serializer, source));

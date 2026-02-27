@@ -1,4 +1,5 @@
-import io.github.blockneko11.config.unified.conversion.Convert;
+import io.github.blockneko11.config.unified.conversion.Conversion;
+import io.github.blockneko11.config.unified.conversion.UUIDConvertor;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ public class TestBean {
 
     public Gender gender;
 
-    @Convert
+    @Conversion(UUIDConvertor.class)
     public UUID uuid;
 
     public transient int transientField;

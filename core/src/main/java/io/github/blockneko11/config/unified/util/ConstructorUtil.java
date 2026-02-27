@@ -1,11 +1,11 @@
 package io.github.blockneko11.config.unified.util;
 
-import io.github.blockneko11.config.unified.exception.ConfigException;
+import io.github.blockneko11.config.unified.exception.ReflectionException;
 
 import java.lang.reflect.Constructor;
 
 public final class ConstructorUtil {
-    public static <T> T newInstance(Class<T> clazz) throws ConfigException {
+    public static <T> T newInstance(Class<T> clazz) throws ReflectionException {
         try {
             Constructor<T> ctor = clazz.getDeclaredConstructor();
             if (!ctor.isAccessible()) {
@@ -14,7 +14,7 @@ public final class ConstructorUtil {
 
             return ctor.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new ConfigException("Cannot create instance of " + clazz.getName(), e);
+            throw new ReflectionException("Cannot create instance of " + clazz.getName(), e);
         }
     }
 }

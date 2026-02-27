@@ -1,7 +1,5 @@
 package io.github.blockneko11.config.unified.core;
 
-import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.exception.ConfigConversionException;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
@@ -46,18 +44,6 @@ public class MapConfigHolder extends ConfigHolder {
         return clazz.cast(this.config.get(key));
     }
 
-    public <T> T get(String key, ConfigConvertor<T> convertor) {
-        if (!this.has(key)) {
-            return null;
-        }
-
-        try {
-            return convertor.toTarget(this.config.get(key));
-        } catch (ConfigConversionException e) {
-            return null;
-        }
-    }
-
     public <T> T get(String key, T defaultValue) {
         return this.has(key) ? (T) this.config.get(key) : defaultValue;
     }
@@ -68,18 +54,6 @@ public class MapConfigHolder extends ConfigHolder {
         }
 
         return clazz.cast(this.config.get(key));
-    }
-
-    public <T> T get(String key, ConfigConvertor<T> convertor, T defaultValue) {
-        if (!this.has(key)) {
-            return defaultValue;
-        }
-
-        try {
-            return convertor.toTarget(this.config.get(key));
-        } catch (ConfigConversionException e) {
-            return defaultValue;
-        }
     }
 
     public int getInt(String key) {
@@ -176,13 +150,7 @@ public class MapConfigHolder extends ConfigHolder {
         return this.config;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder extends ConfigHolder.Builder<MapConfigHolder> {
-        private Builder() {
-            super(MapConfigHolder::new);
-        }
+    public static ConfigHolderBuilder<MapConfigHolder> builder() {
+        return ConfigHolderBuilder.of(MapConfigHolder::new);
     }
 }

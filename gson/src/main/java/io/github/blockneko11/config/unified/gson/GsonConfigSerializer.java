@@ -3,7 +3,7 @@ package io.github.blockneko11.config.unified.gson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import io.github.blockneko11.config.unified.exception.ConfigSerializationException;
+import io.github.blockneko11.config.unified.exception.SerializationException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 
 import java.util.LinkedHashMap;
@@ -20,16 +20,16 @@ public class GsonConfigSerializer implements ConfigSerializer {
     }
 
     @Override
-    public Map<String, Object> deserialize(String config) throws ConfigSerializationException {
+    public Map<String, Object> deserialize(String config) throws SerializationException {
         try {
             return (Map<String, Object>) this.gson.fromJson(config, LinkedHashMap.class);
         } catch (JsonSyntaxException e) {
-            throw new ConfigSerializationException(e);
+            throw new SerializationException(e);
         }
     }
 
     @Override
-    public String serialize(Map<String, Object> config) throws ConfigSerializationException {
+    public String serialize(Map<String, Object> config) throws SerializationException {
         return this.gson.toJson(config);
     }
 }

@@ -1,7 +1,6 @@
 package io.github.blockneko11.config.unified.source;
 
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.exception.ConfigIOException;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class FileConfigSource implements ConfigSource {
             List<String> lines = Files.readAllLines(this.file.toPath(), StandardCharsets.UTF_8);
             return String.join("\n", lines);
         } catch (IOException e) {
-            throw new ConfigIOException(e);
+            throw new ConfigException(e);
         }
     }
 
@@ -31,7 +30,7 @@ public class FileConfigSource implements ConfigSource {
         try {
             Files.write(this.file.toPath(), config.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            throw new ConfigIOException(e);
+            throw new ConfigException(e);
         }
     }
 }
