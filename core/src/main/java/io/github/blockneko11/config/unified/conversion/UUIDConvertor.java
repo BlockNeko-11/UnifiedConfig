@@ -2,7 +2,7 @@ package io.github.blockneko11.config.unified.conversion;
 
 import java.util.UUID;
 
-public class UUIDConfigConvertor implements ConfigConvertor<UUID> {
+public class UUIDConvertor implements ConfigConvertor<UUID> {
     @Override
     public Class<UUID> getTargetType() {
         return UUID.class;

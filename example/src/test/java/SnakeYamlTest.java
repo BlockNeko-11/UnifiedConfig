@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.conversion.UUIDConfigConvertor;
+import io.github.blockneko11.config.unified.conversion.UUIDConvertor;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
@@ -26,7 +26,7 @@ public class SnakeYamlTest {
 
     @BeforeEach
     void setup() {
-        ConfigConvertors.register(new UUIDConfigConvertor());
+        ConfigConvertors.register(new UUIDConvertor());
     }
 
     @Test

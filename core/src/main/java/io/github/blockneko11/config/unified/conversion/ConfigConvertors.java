@@ -19,6 +19,6 @@ public final class ConfigConvertors {
     }
 
     static {
-        register(new UUIDConfigConvertor());
+        register(new UUIDConvertor());
     }
 }
