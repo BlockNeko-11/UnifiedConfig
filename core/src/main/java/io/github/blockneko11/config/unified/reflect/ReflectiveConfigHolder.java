@@ -2,6 +2,7 @@ package io.github.blockneko11.config.unified.reflect;
 
 import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
 import io.github.blockneko11.config.unified.conversion.Conversion;
+import io.github.blockneko11.config.unified.conversion.Conversions;
 import io.github.blockneko11.config.unified.core.ConfigHolder;
 import io.github.blockneko11.config.unified.core.ConfigHolderBuilder;
 import io.github.blockneko11.config.unified.exception.ReflectionException;
@@ -116,18 +117,11 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     continue;
                 }
 
-                Conversion anno = field.getAnnotation(Conversion.class);
-                if (anno == null) {
+                Object deserialized = Conversions.deserialize(field, value);
+                if (deserialized == null) {
                     continue;
                 }
 
-                Class<?> valueType = value.getClass();
-                ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) ConstructorUtil.newInstance(anno.value());
-                if (!convertor.getOriginalType().isAssignableFrom(valueType)) {
-                    throw new IllegalArgumentException("config type " + valueType + " is not assignable from " + convertor.getOriginalType());
-                }
-
-                Object deserialized = convertor.deserialize(value);
                 Validations.validateObject(field, deserialized);
                 field.set(instance, deserialized);
             } catch (IllegalAccessException e) {
@@ -214,14 +208,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     continue;
                 }
 
-                Conversion anno = field.getAnnotation(Conversion.class);
-                if (anno == null) {
-                    continue;
-                }
-
                 Validations.validateObject(field, value);
-                ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) ConstructorUtil.newInstance(anno.value());
-                config.put(fieldName, convertor.serialize(value));
+                config.put(fieldName, Conversions.serialize(field, value));
             } catch (IllegalAccessException e) {
                 throw new ReflectionException(e);
             }
