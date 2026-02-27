@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.property.Nest;
+import io.github.blockneko11.config.unified.reflect.property.Nest;
 
 public class Outer {
     @Nest

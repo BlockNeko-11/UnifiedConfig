@@ -1,6 +1,5 @@
-import io.github.blockneko11.config.unified.conversion.Convert;
-import io.github.blockneko11.config.unified.property.Id;
-import io.github.blockneko11.config.unified.property.Ignore;
+import io.github.blockneko11.config.unified.reflect.conversion.Convert;
+import io.github.blockneko11.config.unified.reflect.property.Ignore;
 
 import java.util.*;
 
