@@ -1,5 +1,5 @@
 import io.github.blockneko11.config.unified.core.ReflectiveConfigHolder;
-import io.github.blockneko11.config.unified.conversion.Convertors;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ public class SnakeYamlTest {
 
     @BeforeEach
     void setup() {
-        Convertors.register(new UUIDConvertor());
+        ConfigConvertors.register(new UUIDConfigConvertor());
     }
 
     @Test

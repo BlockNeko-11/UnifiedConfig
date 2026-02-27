@@ -1,8 +1,8 @@
 package io.github.blockneko11.config.unified.core;
 
-import io.github.blockneko11.config.unified.conversion.Convertor;
-import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.property.Id;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.conversion.Convert;
 import io.github.blockneko11.config.unified.property.Ignore;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
@@ -111,12 +111,10 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     continue;
                 }
 
-                Convertor<?> convertor = Convertors.get(fType);
-                if (convertor == null) {
-                    continue;
+                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
+                    f.set(instance, convertor.toTarget(value));
                 }
-
-                f.set(instance, convertor.deserialize(value));
             } catch (IllegalAccessException | ConfigException e) {
                 return null;
             }
@@ -185,12 +183,10 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     config.put(fName, map);
                 }
 
-                Convertor convertor = Convertors.get(fType);
-                if (convertor == null) {
-                    continue;
+                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+                    ConfigConvertor convertor = ConfigConvertors.get(fType);
+                    config.put(fName, convertor.toSerialized(value));
                 }
-
-                config.put(fName, convertor.serialize(value));
             } catch (IllegalAccessException | ConfigException e) {
                 return Collections.emptyMap();
             }
