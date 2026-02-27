@@ -1,5 +1,7 @@
 package io.github.blockneko11.config.unified.core;
 
+import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
+import io.github.blockneko11.config.unified.exception.ConfigConversionException;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
@@ -19,8 +21,12 @@ public class MapConfigHolder extends ConfigHolder {
         return this.config.isEmpty();
     }
 
-    public boolean hasKey(String key) {
+    public boolean has(String key) {
         return this.config.containsKey(key);
+    }
+
+    public void clear() {
+        this.config.clear();
     }
 
     public void set(String key, Object value) {
@@ -36,8 +42,40 @@ public class MapConfigHolder extends ConfigHolder {
         return (T) this.config.get(key);
     }
 
+    public <T> T get(String key, Class<T> clazz) {
+        return clazz.cast(this.config.get(key));
+    }
+
+    public <T> T get(String key, ConfigConvertor<T> convertor) throws ConfigConversionException {
+        if (!this.has(key)) {
+            return null;
+        }
+
+        return convertor.toTarget(this.config.get(key));
+    }
+
     public <T> T get(String key, T defaultValue) {
-        return this.hasKey(key) ? (T) this.config.get(key) : defaultValue;
+        return this.has(key) ? (T) this.config.get(key) : defaultValue;
+    }
+
+    public <T> T get(String key, Class<T> clazz, T defaultValue) {
+        if (!this.has(key)) {
+            return defaultValue;
+        }
+
+        return clazz.cast(this.config.get(key));
+    }
+
+    public <T> T get(String key, ConfigConvertor<T> convertor, T defaultValue) {
+        if (!this.has(key)) {
+            return defaultValue;
+        }
+
+        try {
+            return convertor.toTarget(this.config.get(key));
+        } catch (ConfigConversionException e) {
+            return defaultValue;
+        }
     }
 
     public int getInt(String key) {
@@ -114,7 +152,7 @@ public class MapConfigHolder extends ConfigHolder {
 
     public void merge(Map<String, Object> another, boolean replace) {
         for (Map.Entry<String, Object> entry : another.entrySet()) {
-            if (replace || !this.hasKey(entry.getKey())) {
+            if (replace || !this.has(entry.getKey())) {
                 this.set(entry.getKey(), entry.getValue());
             }
         }
