@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MapConfig extends Config {
+public class MapConfigHolder extends ConfigHolder {
     private final Map<String, Object> config = new LinkedHashMap<>();
 
-    private MapConfig(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
+    private MapConfigHolder(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
         super(serializer, loadingAction, savingAction);
     }
 
@@ -100,7 +100,7 @@ public class MapConfig extends Config {
         return (T) value;
     }
 
-    public void merge(MapConfig holder) {
+    public void merge(MapConfigHolder holder) {
         this.merge(holder.config);
     }
 
@@ -108,7 +108,7 @@ public class MapConfig extends Config {
         this.merge(another, true);
     }
 
-    public void merge(MapConfig another, boolean replace) {
+    public void merge(MapConfigHolder another, boolean replace) {
         this.merge(another.config, true);
     }
 
@@ -138,9 +138,9 @@ public class MapConfig extends Config {
         return new Builder();
     }
 
-    public static final class Builder extends Config.Builder<MapConfig> {
+    public static final class Builder extends ConfigHolder.Builder<MapConfigHolder> {
         private Builder() {
-            super(MapConfig::new);
+            super(MapConfigHolder::new);
         }
     }
 }

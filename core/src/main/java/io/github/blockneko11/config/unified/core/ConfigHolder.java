@@ -5,12 +5,12 @@ import io.github.blockneko11.config.unified.serialization.Serializer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class Config {
+public abstract class ConfigHolder {
     protected final Serializer serializer;
     private final Supplier<String> loadingAction;
     private final Consumer<String> savingAction;
 
-    protected Config(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
+    protected ConfigHolder(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
         this.serializer = serializer;
         this.loadingAction = loadingAction;
         this.savingAction = savingAction;
@@ -28,7 +28,7 @@ public abstract class Config {
 
     protected abstract String save0();
 
-    public static abstract class Builder<T extends Config> {
+    public static abstract class Builder<T extends ConfigHolder> {
         private final ConfigCreator<T> creator;
         private Serializer serializer;
         private Supplier<String> loadingAction = () -> "";
@@ -63,7 +63,7 @@ public abstract class Config {
     }
 
     @FunctionalInterface
-    public interface ConfigCreator<T extends Config> {
+    public interface ConfigCreator<T extends ConfigHolder> {
         T apply(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction);
     }
 }

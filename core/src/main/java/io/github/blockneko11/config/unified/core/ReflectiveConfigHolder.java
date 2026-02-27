@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ReflectiveConfig<T> extends Config implements Supplier<T> {
+public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<T> {
     private final Class<T> clazz;
     private T instance;
 
-    private ReflectiveConfig(Class<T> clazz, Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
+    private ReflectiveConfigHolder(Class<T> clazz, Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
         super(serializer, loadingAction, savingAction);
         this.clazz = clazz;
     }
@@ -35,7 +35,7 @@ public class ReflectiveConfig<T> extends Config implements Supplier<T> {
         return this.instance;
     }
 
-    @ApiStatus.Experimental
+    @ApiStatus.Internal
     public void set(T instance) {
         this.instance = instance;
     }
@@ -204,10 +204,10 @@ public class ReflectiveConfig<T> extends Config implements Supplier<T> {
         return new Builder<>(clazz);
     }
 
-    public static final class Builder<T> extends Config.Builder<ReflectiveConfig<T>> {
+    public static final class Builder<T> extends ConfigHolder.Builder<ReflectiveConfigHolder<T>> {
         private Builder(Class<T> clazz) {
             super((serializer, loadingAction, savingAction) ->
-                    new ReflectiveConfig<>(clazz, serializer, loadingAction, savingAction));
+                    new ReflectiveConfigHolder<>(clazz, serializer, loadingAction, savingAction));
         }
     }
 }

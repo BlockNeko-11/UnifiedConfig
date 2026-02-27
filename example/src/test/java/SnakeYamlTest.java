@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.core.ReflectiveConfig;
+import io.github.blockneko11.config.unified.core.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.conversion.Convertors;
 import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlSerializer;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ public class SnakeYamlTest {
 
     @Test
     void read() {
-        ReflectiveConfig<TestBean> binder = ReflectiveConfig.builder(TestBean.class)
+        ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
                 .serializer(SnakeYamlSerializer.DEFAULT)
                 .loadingAction(() -> CONFIG)
                 .build();
@@ -39,7 +39,7 @@ public class SnakeYamlTest {
 
     @Test
     void write() {
-        ReflectiveConfig<TestBean> binder = ReflectiveConfig.builder(TestBean.class)
+        ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
                 .serializer(SnakeYamlSerializer.DEFAULT)
                 .savingAction(System.out::println)
                 .build();
