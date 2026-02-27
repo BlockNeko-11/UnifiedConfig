@@ -3,6 +3,7 @@ package io.github.blockneko11.config.unified.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public final class ConfigConvertors {
     private static final Map<Class<?>, ConfigConvertor<?>> CONVERTORS = new HashMap<>();
 

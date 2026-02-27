@@ -1,9 +1,6 @@
-import io.github.blockneko11.config.unified.conversion.UUIDConvertor;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
-import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GsonTest {
@@ -33,11 +30,6 @@ public class GsonTest {
             "    \"name\": \"222\"\n" +
             "  }\n" +
             "}";
-
-    @BeforeEach
-    void setup() {
-        ConfigConvertors.register(new UUIDConvertor());
-    }
 
     @Test
     void read() throws Exception {

@@ -2,7 +2,6 @@ package io.github.blockneko11.config.unified.reflect;
 
 import io.github.blockneko11.config.unified.core.ConfigHolder;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.conversion.Convert;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
@@ -107,10 +106,10 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     continue;
                 }
 
-                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
-                    f.set(instance, convertor.toTarget(value));
-                }
+//                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+//                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
+//                    f.set(instance, convertor.toTarget(value));
+//                }
             } catch (IllegalAccessException e) {
                 throw new ConfigException(e);
             }
@@ -175,10 +174,10 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     config.put(fName, map);
                 }
 
-                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-                    ConfigConvertor convertor = ConfigConvertors.get(fType);
-                    config.put(fName, convertor.toSerialized(value));
-                }
+//                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+//                    ConfigConvertor convertor = ConfigConvertors.get(fType);
+//                    config.put(fName, convertor.toSerialized(value));
+//                }
             } catch (IllegalAccessException e) {
                 throw new ConfigException(e);
             }
