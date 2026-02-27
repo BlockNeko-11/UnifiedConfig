@@ -10,15 +10,13 @@ import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
 import io.github.blockneko11.config.unified.util.ConstructorUtil;
+import io.github.blockneko11.config.unified.validation.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<T> {
@@ -53,58 +51,72 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
     private static <T> T load0(Class<T> clazz, Map<String, Object> config) throws ConfigException {
         T instance = ConstructorUtil.newInstance(clazz);
 
-        for (Field f : clazz.getDeclaredFields()) {
-            int mod = f.getModifiers();
+        for (Field field : clazz.getDeclaredFields()) {
+            int mod = field.getModifiers();
             if (Modifier.isStatic(mod) || Modifier.isFinal(mod) || Modifier.isTransient(mod)) {
                 continue;
             }
 
-            if (!f.isAccessible()) {
-                f.setAccessible(true);
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
             }
 
             try {
-                Object value = config.get(f.getName());
+                String fieldName = field.getName();
+                Object value = config.get(fieldName);
                 if (value == null) {
-                    f.set(instance, null);
+                    Validations.validateNull(field);
+                    field.set(instance, null);
                     continue;
                 }
 
-                Class<?> fType = f.getType();
+                Class<?> fieldType = field.getType();
 
-                if (fType == int.class) {
-                    f.setInt(instance, ((Number) value).intValue());
+                if (fieldType == int.class) {
+                    int i = ((Number) value).intValue();
+                    Validations.validateInt(field, i);
+                    field.setInt(instance, i);
                     continue;
-                } else if (fType == long.class) {
-                    f.setLong(instance, ((Number) value).longValue());
+                } if (fieldType == long.class) {
+                    long l = ((Number) value).longValue();
+                    Validations.validateLong(field, l);
                     continue;
-                } else if (fType == float.class) {
-                    f.setFloat(instance, ((Number) value).floatValue());
+                } if (fieldType == float.class) {
+                    float f = ((Number) value).floatValue();
+                    Validations.validateFloat(field, f);
                     continue;
-                } else if (fType == double.class) {
-                    f.setDouble(instance, ((Number) value).doubleValue());
+                } if (fieldType == double.class) {
+                    double d = ((Number) value).doubleValue();
+                    Validations.validateDouble(field, d);
                     continue;
-                } else if (fType == boolean.class) {
-                    f.setBoolean(instance, (boolean) value);
+                } if (fieldType == boolean.class) {
+                    field.setBoolean(instance, (boolean) value);
                     continue;
-                } else if (fType == String.class || fType == List.class || fType == Map.class) {
-                    f.set(instance, value);
+                } if (fieldType == char.class || fieldType == byte.class || fieldType == short.class) {
+                    throw new ConfigException("char, byte and short are not supported");
+                } if (fieldType == String.class) {
+                    String s = (String) value;
+                    Validations.validateString(field, s);
+                    field.set(instance, s);
                     continue;
-                } else if (fType.isEnum()) {
-                    f.set(instance, Enum.valueOf((Class<? extends Enum>) fType, (String) value));
+                } if (fieldType == List.class || fieldType == Map.class) {
+                    field.set(instance, value);
                     continue;
-                } else if (fType.isArray()) {
-                    throw new IllegalArgumentException("use List instead of array");
-                } else if (f.isAnnotationPresent(Nest.class)) {
+                } if (fieldType.isEnum()) {
+                    field.set(instance, Enum.valueOf((Class<? extends Enum>) fieldType, (String) value));
+                    continue;
+                } if (fieldType.isArray()) {
+                    throw new ConfigException("use List instead of array");
+                } if (field.isAnnotationPresent(Nest.class)) {
                     if (!(value instanceof Map)) {
-                        continue;
+                        throw new ConfigException("config value of key " + fieldName + " is not a map");
                     }
 
-                    f.set(instance, load0(fType, (Map<String, Object>) value));
+                    field.set(instance, load0(fieldType, (Map<String, Object>) value));
                     continue;
                 }
 
-                Conversion anno = f.getAnnotation(Conversion.class);
+                Conversion anno = field.getAnnotation(Conversion.class);
                 if (anno == null) {
                     continue;
                 }
@@ -115,7 +127,9 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                     throw new IllegalArgumentException("config type " + valueType + " is not assignable from " + convertor.getOriginalType());
                 }
 
-                f.set(instance, convertor.deserialize(value));
+                Object deserialized = convertor.deserialize(value);
+                Validations.validateObject(field, deserialized);
+                field.set(instance, deserialized);
             } catch (IllegalAccessException e) {
                 throw new ReflectionException(e);
             }
@@ -135,59 +149,79 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
         }
 
         Map<String, Object> config = new LinkedHashMap<>();
-        for (Field f : clazz.getDeclaredFields()) {
-            int mod = f.getModifiers();
+        for (Field field : clazz.getDeclaredFields()) {
+            int mod = field.getModifiers();
             if (Modifier.isStatic(mod) || Modifier.isFinal(mod)|| Modifier.isTransient(mod)) {
                 continue;
             }
 
-            if (!f.isAccessible()) {
-                f.setAccessible(true);
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
             }
 
-            String fName = f.getName();
-
             try {
-                Class<?> fType = f.getType();
-                Object value = f.get(instance);
+                Class<?> fieldType = field.getType();
+                String fieldName = field.getName();
+                Object value = field.get(instance);
 
                 if (value == null) {
+                    Validations.validateNull(field);
+                    config.put(fieldName, null);
                     continue;
-                }
-
-                if (fType == int.class ||
-                        fType == long.class ||
-                        fType == float.class ||
-                        fType == double.class ||
-                        fType == boolean.class ||
-                        fType == String.class ||
-                        fType == List.class ||
-                        fType == Map.class) {
-                    config.put(fName, value);
+                } if (fieldType == int.class) {
+                    int i = field.getInt(instance);
+                    Validations.validateInt(field, i);
+                    config.put(fieldName, i);
                     continue;
-                } else if (fType.isEnum()) {
-                    config.put(fName, ((Enum<?>) value).name());
+                } if (fieldType == long.class) {
+                    long l = field.getLong(instance);
+                    Validations.validateLong(field, l);
+                    config.put(fieldName, l);
                     continue;
-                } else if (fType.isArray()) {
-                    throw new IllegalArgumentException("use List instead of array");
-                } else if (f.isAnnotationPresent(Nest.class)) {
-                    Map<String, Object> map = save0((Class) fType, value);
+                } if (fieldType == float.class) {
+                    float f = field.getFloat(instance);
+                    Validations.validateFloat(field, f);
+                    config.put(fieldName, f);
+                    continue;
+                } if (fieldType == double.class) {
+                    double d = field.getDouble(instance);
+                    Validations.validateDouble(field, d);
+                    config.put(fieldName, d);
+                    continue;
+                } if (fieldType == char.class || fieldType == byte.class || fieldType == short.class) {
+                    throw new ConfigException("char, byte and short are not supported");
+                } if (fieldType == String.class) {
+                    String s = (String) value;
+                    Validations.validateString(field, s);
+                    config.put(fieldName, s);
+                    continue;
+                } if (fieldType == boolean.class || fieldType == List.class || fieldType == Map.class) {
+                    config.put(fieldName, value);
+                    continue;
+                } if (fieldType.isEnum()) {
+                    config.put(fieldName, ((Enum<?>) value).name());
+                    continue;
+                } if (fieldType.isArray()) {
+                    throw new ConfigException("use List instead of array");
+                } if (field.isAnnotationPresent(Nest.class)) {
+                    Map<String, Object> map = save0((Class) fieldType, value);
 
                     if (map.isEmpty()) {
                         continue;
                     }
 
-                    config.put(fName, map);
+                    config.put(fieldName, map);
                     continue;
                 }
 
-                Conversion anno = f.getAnnotation(Conversion.class);
+                Conversion anno = field.getAnnotation(Conversion.class);
                 if (anno == null) {
                     continue;
                 }
 
+                Validations.validateObject(field, value);
                 ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) ConstructorUtil.newInstance(anno.value());
-                config.put(fName, convertor.serialize(value));
+                config.put(fieldName, convertor.serialize(value));
             } catch (IllegalAccessException e) {
                 throw new ReflectionException(e);
             }
@@ -195,6 +229,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
 
         return config;
     }
+
+
 
     public static <T> Builder<T> builder(Class<T> clazz) {
         return new Builder<>(clazz);
