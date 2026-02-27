@@ -58,7 +58,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 continue;
             }
 
-            if (f.isAccessible()) {
+            if (!f.isAccessible()) {
                 f.setAccessible(true);
             }
 
@@ -136,7 +136,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 continue;
             }
 
-            if (f.isAccessible()) {
+            if (!f.isAccessible()) {
                 f.setAccessible(true);
             }
 
