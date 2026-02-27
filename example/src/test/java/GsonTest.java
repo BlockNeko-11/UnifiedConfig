@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.core.BoundConfig;
+import io.github.blockneko11.config.unified.core.ReflectiveConfig;
 import io.github.blockneko11.config.unified.conversion.Convertors;
 import io.github.blockneko11.config.unified.gson.GsonSerializer;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,14 +39,14 @@ public class GsonTest {
 
     @Test
     void read() {
-        BoundConfig<TestBean> c1 = BoundConfig.builder(TestBean.class)
+        ReflectiveConfig<TestBean> c1 = ReflectiveConfig.builder(TestBean.class)
                 .serializer(GsonSerializer.DEFAULT)
                 .loadingAction(() -> CONFIG_1)
                 .build();
         c1.load();
         System.out.println(c1.get());
 
-        BoundConfig<Outer> c2 = BoundConfig.builder(Outer.class)
+        ReflectiveConfig<Outer> c2 = ReflectiveConfig.builder(Outer.class)
                 .serializer(GsonSerializer.DEFAULT)
                 .loadingAction(() -> CONFIG_2)
                 .build();
@@ -56,14 +56,14 @@ public class GsonTest {
 
     @Test
     void write() {
-        BoundConfig<TestBean> c1 = BoundConfig.builder(TestBean.class)
+        ReflectiveConfig<TestBean> c1 = ReflectiveConfig.builder(TestBean.class)
                 .serializer(GsonSerializer.DEFAULT)
                 .savingAction(System.out::println)
                 .build();
         c1.set(TestBean.getInstance());
         c1.save();
 
-        BoundConfig<Outer> c2 = BoundConfig.builder(Outer.class)
+        ReflectiveConfig<Outer> c2 = ReflectiveConfig.builder(Outer.class)
                 .serializer(GsonSerializer.DEFAULT)
                 .savingAction(System.out::println)
                 .build();

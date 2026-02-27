@@ -20,11 +20,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BoundConfig<T> extends Config implements Supplier<T> {
+public class ReflectiveConfig<T> extends Config implements Supplier<T> {
     private final Class<T> clazz;
     private T instance;
 
-    private BoundConfig(Class<T> clazz, Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
+    private ReflectiveConfig(Class<T> clazz, Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
         super(serializer, loadingAction, savingAction);
         this.clazz = clazz;
     }
@@ -204,10 +204,10 @@ public class BoundConfig<T> extends Config implements Supplier<T> {
         return new Builder<>(clazz);
     }
 
-    public static final class Builder<T> extends Config.Builder<BoundConfig<T>> {
+    public static final class Builder<T> extends Config.Builder<ReflectiveConfig<T>> {
         private Builder(Class<T> clazz) {
             super((serializer, loadingAction, savingAction) ->
-                    new BoundConfig<>(clazz, serializer, loadingAction, savingAction));
+                    new ReflectiveConfig<>(clazz, serializer, loadingAction, savingAction));
         }
     }
 }

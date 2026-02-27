@@ -1,6 +1,5 @@
 package io.github.blockneko11.config.unified.core;
 
-import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.Serializer;
 
 import java.util.function.Consumer;
