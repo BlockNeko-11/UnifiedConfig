@@ -4,7 +4,6 @@ import io.github.blockneko11.config.unified.core.ConfigHolder;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
 import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.conversion.Convert;
-import io.github.blockneko11.config.unified.property.Ignore;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
@@ -54,12 +53,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
         T instance = ConstructorUtil.newInstance(clazz);
 
         for (Field f : clazz.getDeclaredFields()) {
-            if (f.isAnnotationPresent(Ignore.class)) {
-                continue;
-            }
-
             int mod = f.getModifiers();
-            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
+            if (Modifier.isStatic(mod) || Modifier.isFinal(mod) || Modifier.isTransient(mod)) {
                 continue;
             }
 
@@ -136,12 +131,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
 
         Map<String, Object> config = new LinkedHashMap<>();
         for (Field f : clazz.getDeclaredFields()) {
-            if (f.isAnnotationPresent(Ignore.class)) {
-                continue;
-            }
-
             int mod = f.getModifiers();
-            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
+            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)|| Modifier.isTransient(mod)) {
                 continue;
             }
 

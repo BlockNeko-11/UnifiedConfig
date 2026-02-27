@@ -1,5 +1,4 @@
 import io.github.blockneko11.config.unified.conversion.Convert;
-import io.github.blockneko11.config.unified.property.Ignore;
 
 import java.util.*;
 
@@ -23,8 +22,7 @@ public class TestBean {
     @Convert
     public UUID uuid;
 
-    @Ignore
-    public int transientField;
+    public transient int transientField;
 
     public String address;
 
