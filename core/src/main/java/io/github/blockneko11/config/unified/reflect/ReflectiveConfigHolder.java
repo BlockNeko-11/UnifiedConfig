@@ -1,36 +1,33 @@
-package io.github.blockneko11.config.unified.holder;
+package io.github.blockneko11.config.unified.reflect;
 
-import io.github.blockneko11.config.unified.conversion.Convertor;
-import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.property.Id;
+import io.github.blockneko11.config.unified.core.ConfigHolder;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.conversion.Convert;
 import io.github.blockneko11.config.unified.property.Ignore;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.serialization.Serializer;
-import io.github.blockneko11.config.unified.util.reflect.ConstructorUtils;
+import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.source.ConfigSource;
+import io.github.blockneko11.config.unified.util.ConstructorUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
-    private final Serializer serializer;
+public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<T> {
     private final Class<T> clazz;
     private T instance;
 
-    public ObjectConfigHolder(Serializer serializer, Class<T> clazz) {
-        this.serializer = serializer;
+    private ReflectiveConfigHolder(Class<T> clazz, ConfigSerializer serializer, ConfigSource source) {
+        super(serializer, source);
         this.clazz = clazz;
-    }
-
-    @Override
-    public Serializer getSerializer() {
-        return this.serializer;
     }
 
     @Nullable
@@ -39,7 +36,7 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
         return this.instance;
     }
 
-    @ApiStatus.Experimental
+    @ApiStatus.Internal
     public void set(T instance) {
         this.instance = instance;
     }
@@ -49,14 +46,14 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
     }
 
     @Override
-    public void deserialize(String s) throws ConfigException {
-        this.deserialize(this.serializer.deserialize(s));
+    protected void load0(String loaded) throws ConfigException {
+        this.instance = load0(this.clazz, this.serializer.deserialize(loaded));
     }
 
-    private void deserialize(Map<String, Object> config) throws ConfigException {
-        this.instance = ConstructorUtils.newInstance(this.clazz);
+    private static <T> T load0(Class<T> clazz, Map<String, Object> config) throws ConfigException {
+        T instance = ConstructorUtils.newInstance(clazz);
 
-        for (Field f : this.clazz.getDeclaredFields()) {
+        for (Field f : clazz.getDeclaredFields()) {
             if (f.isAnnotationPresent(Ignore.class)) {
                 continue;
             }
@@ -70,8 +67,7 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
                 f.setAccessible(true);
             }
 
-            String fName = f.isAnnotationPresent(Id.class) ? f.getAnnotation(Id.class).value() : f.getName();
-            Object value = config.get(fName);
+            Object value = config.get(f.getName());
             if (value == null) {
                 continue;
             }
@@ -80,55 +76,66 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
 
             try {
                 if (fType == int.class) {
-                    f.setInt(this.instance, ((Number) value).intValue());
+                    f.setInt(instance, ((Number) value).intValue());
                     continue;
                 } else if (fType == long.class) {
-                    f.setLong(this.instance, ((Number) value).longValue());
+                    f.setLong(instance, ((Number) value).longValue());
                     continue;
                 } else if (fType == float.class) {
-                    f.setFloat(this.instance, ((Number) value).floatValue());
+                    f.setFloat(instance, ((Number) value).floatValue());
                     continue;
                 } else if (fType == double.class) {
-                    f.setDouble(this.instance, ((Number) value).doubleValue());
+                    f.setDouble(instance, ((Number) value).doubleValue());
                     continue;
                 } else if (fType == boolean.class) {
-                    f.setBoolean(this.instance, (boolean) value);
+                    f.setBoolean(instance, (boolean) value);
                     continue;
                 } else if (fType == String.class || fType == List.class || fType == Map.class) {
-                    f.set(this.instance, value);
+                    f.set(instance, value);
                     continue;
                 } else if (fType.isEnum()) {
-                    f.set(this.instance, Enum.valueOf((Class<? extends Enum>) fType, (String) value));
+                    f.set(instance, Enum.valueOf((Class<? extends Enum>) fType, (String) value));
                     continue;
                 } else if (fType.isArray()) {
                     throw new IllegalArgumentException("use List instead of array");
                 } else if (f.isAnnotationPresent(Nest.class)) {
-                    ObjectConfigHolder<?> subBinder = new ObjectConfigHolder<>(this.serializer, fType);
-                    subBinder.deserialize((Map<String, Object>) config.get(fName));
-                    if (subBinder.isPresent()) {
-                        f.set(this.instance, subBinder.get());
+                    if (!(value instanceof Map)) {
                         continue;
                     }
+
+                    Object o = load0(fType, (Map<String, Object>) value);
+                    if (o == null) {
+                        continue;
+                    }
+
+                    f.set(instance, o);
+                    continue;
                 }
 
-                Convertor<?> convertor = Convertors.get(fType);
-                if (convertor != null) {
-                    f.set(this.instance, convertor.deserialize(value));
+                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
+                    f.set(instance, convertor.toTarget(value));
                 }
             } catch (IllegalAccessException e) {
                 throw new ConfigException(e);
             }
         }
+
+        return instance;
     }
 
     @Override
-    public String serialize() throws ConfigException {
-        if (this.instance == null) {
-            return "";
+    protected String save0() throws ConfigException {
+        return this.serializer.serialize(save0(this.clazz, this.instance));
+    }
+
+    private static <T> Map<String, Object> save0(Class<T> clazz, T instance) throws ConfigException {
+        if (instance == null) {
+            return Collections.emptyMap();
         }
 
         Map<String, Object> config = new LinkedHashMap<>();
-        for (Field f : this.clazz.getDeclaredFields()) {
+        for (Field f : clazz.getDeclaredFields()) {
             if (f.isAnnotationPresent(Ignore.class)) {
                 continue;
             }
@@ -142,11 +149,11 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
                 f.setAccessible(true);
             }
 
-            String fName = f.isAnnotationPresent(Id.class) ? f.getAnnotation(Id.class).value() : f.getName();
+            String fName = f.getName();
 
             try {
                 Class<?> fType = f.getType();
-                Object value = f.get(this.instance);
+                Object value = f.get(instance);
 
                 if (value == null) {
                     continue;
@@ -168,21 +175,35 @@ public class ObjectConfigHolder<T> implements ConfigHolder, Supplier<T> {
                 } else if (fType.isArray()) {
                     throw new IllegalArgumentException("use List instead of array");
                 } else if (f.isAnnotationPresent(Nest.class)) {
-                    ObjectConfigHolder subBinder = new ObjectConfigHolder<>(this.serializer, fType);
-                    subBinder.set(value);
-                    config.put(fName, subBinder.serialize());
-                    continue;
+                    Map<String, Object> map = save0((Class) fType, value);
+
+                    if (map.isEmpty()) {
+                        continue;
+                    }
+
+                    config.put(fName, map);
                 }
 
-                Convertor convertor = Convertors.get(fType);
-                if (convertor != null) {
-                    config.put(fName, convertor.serialize(value));
+                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
+                    ConfigConvertor convertor = ConfigConvertors.get(fType);
+                    config.put(fName, convertor.toSerialized(value));
                 }
             } catch (IllegalAccessException e) {
                 throw new ConfigException(e);
             }
         }
 
-        return this.serializer.serialize(config);
+        return config;
+    }
+
+    public static <T> Builder<T> builder(Class<T> clazz) {
+        return new Builder<>(clazz);
+    }
+
+    public static final class Builder<T> extends ConfigHolder.Builder<ReflectiveConfigHolder<T>> {
+        private Builder(Class<T> clazz) {
+            super((serializer, source) ->
+                    new ReflectiveConfigHolder<>(clazz, serializer, source));
+        }
     }
 }

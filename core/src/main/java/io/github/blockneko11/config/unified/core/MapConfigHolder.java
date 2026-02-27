@@ -1,23 +1,18 @@
-package io.github.blockneko11.config.unified.holder;
+package io.github.blockneko11.config.unified.core;
 
-import io.github.blockneko11.config.unified.serialization.Serializer;
+import io.github.blockneko11.config.unified.exception.ConfigException;
+import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.source.ConfigSource;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapConfigHolder implements ConfigHolder {
-    protected final Map<String, Object> config;
-    private final Serializer serializer;
+public class MapConfigHolder extends ConfigHolder {
+    private final Map<String, Object> config = new LinkedHashMap<>();
 
-    public MapConfigHolder(Serializer serializer) {
-        this.config = new LinkedHashMap<>();
-        this.serializer = serializer;
-    }
-
-    @Override
-    public Serializer getSerializer() {
-        return this.serializer;
+    private MapConfigHolder(ConfigSerializer serializer, ConfigSource source) {
+        super(serializer, source);
     }
 
     public boolean isEmpty() {
@@ -126,16 +121,26 @@ public class MapConfigHolder implements ConfigHolder {
     }
 
     @Override
-    public void deserialize(String s) {
-        this.merge(this.serializer.deserialize(s));
+    protected void load0(String loaded) throws ConfigException {
+        this.merge(this.serializer.deserialize(loaded));
     }
 
     @Override
-    public String serialize() {
+    public String save0() throws ConfigException {
         return this.serializer.serialize(this.config);
     }
 
     public Map<String, Object> unwrap() {
         return this.config;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder extends ConfigHolder.Builder<MapConfigHolder> {
+        private Builder() {
+            super(MapConfigHolder::new);
+        }
     }
 }

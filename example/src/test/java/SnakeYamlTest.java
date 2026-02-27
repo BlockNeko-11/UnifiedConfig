@@ -1,8 +1,8 @@
-import io.github.blockneko11.config.unified.Config;
-import io.github.blockneko11.config.unified.holder.ObjectConfigHolder;
-import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlSerializer;
+import io.github.blockneko11.config.unified.conversion.UUIDConfigConvertor;
+import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
+import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,20 +26,26 @@ public class SnakeYamlTest {
 
     @BeforeEach
     void setup() {
-        Convertors.register(new UUIDConvertor());
+        ConfigConvertors.register(new UUIDConfigConvertor());
     }
 
     @Test
-    void read() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(SnakeYamlSerializer.DEFAULT, TestBean.class);
-        binder.deserialize(CONFIG);
+    void read() throws Exception {
+        ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
+                .serializer(SnakeYamlConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG, System.out::println))
+                .build();
+        binder.load();
         System.out.println(binder.get());
     }
 
     @Test
-    void write() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(SnakeYamlSerializer.DEFAULT, TestBean.class);
+    void write() throws Exception {
+        ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
+                .serializer(SnakeYamlConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG, System.out::println))
+                .build();
         binder.set(TestBean.getInstance());
-        System.out.println(binder.serialize());
+        binder.save();
     }
 }

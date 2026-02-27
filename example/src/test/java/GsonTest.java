@@ -1,13 +1,13 @@
-import io.github.blockneko11.config.unified.Config;
-import io.github.blockneko11.config.unified.holder.ObjectConfigHolder;
-import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.gson.GsonSerializer;
+import io.github.blockneko11.config.unified.conversion.UUIDConfigConvertor;
+import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
+import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
+import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
+import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GsonTest {
-    private static final String CONFIG = "{\n" +
+    private static final String CONFIG_1 = "{\n" +
             "  \"score\": 100,\n" +
             "  \"timestamp\": 100000000,\n" +
             "  \"temperature\": 36.5,\n" +
@@ -28,22 +28,48 @@ public class GsonTest {
             "  \"add\": \"Beijing, China\"\n" +
             "}";
 
+    private static final String CONFIG_2 = "{\n" +
+            "  \"inner\": {\n" +
+            "    \"name\": \"222\"\n" +
+            "  }\n" +
+            "}";
+
     @BeforeEach
     void setup() {
-        Convertors.register(new UUIDConvertor());
+        ConfigConvertors.register(new UUIDConfigConvertor());
     }
 
     @Test
-    void read() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(GsonSerializer.DEFAULT, TestBean.class);
-        binder.deserialize(CONFIG);
-        System.out.println(binder.get());
+    void read() throws Exception {
+        ReflectiveConfigHolder<TestBean> c1 = ReflectiveConfigHolder.builder(TestBean.class)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_1, System.out::println))
+                .build();
+        c1.load();
+        System.out.println(c1.get());
+
+        ReflectiveConfigHolder<Outer> c2 = ReflectiveConfigHolder.builder(Outer.class)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_2, System.out::println))
+                .build();
+        c2.load();
+        System.out.println(c2.get());
     }
 
     @Test
-    void write() throws ConfigException {
-        ObjectConfigHolder<TestBean> binder = Config.bind(GsonSerializer.DEFAULT, TestBean.class);
-        binder.set(TestBean.getInstance());
-        System.out.println(binder.serialize());
+    void write() throws Exception {
+        ReflectiveConfigHolder<TestBean> c1 = ReflectiveConfigHolder.builder(TestBean.class)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_1, System.out::println))
+                .build();
+        c1.set(TestBean.getInstance());
+        c1.save();
+
+        ReflectiveConfigHolder<Outer> c2 = ReflectiveConfigHolder.builder(Outer.class)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_2, System.out::println))
+                .build();
+        c2.set(new Outer());
+        c2.save();
     }
 }

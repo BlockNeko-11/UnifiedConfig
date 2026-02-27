@@ -1,4 +1,4 @@
-import io.github.blockneko11.config.unified.property.Id;
+import io.github.blockneko11.config.unified.conversion.Convert;
 import io.github.blockneko11.config.unified.property.Ignore;
 
 import java.util.*;
@@ -20,12 +20,12 @@ public class TestBean {
 
     public Gender gender;
 
+    @Convert
     public UUID uuid;
 
     @Ignore
     public int transientField;
 
-    @Id("add")
     public String address;
 
     @Override
