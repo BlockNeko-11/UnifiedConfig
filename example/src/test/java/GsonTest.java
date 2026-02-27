@@ -1,6 +1,7 @@
 import io.github.blockneko11.config.unified.core.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.gson.GsonSerializer;
+import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
+import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,34 +39,34 @@ public class GsonTest {
     }
 
     @Test
-    void read() {
+    void read() throws Exception {
         ReflectiveConfigHolder<TestBean> c1 = ReflectiveConfigHolder.builder(TestBean.class)
-                .serializer(GsonSerializer.DEFAULT)
-                .loadingAction(() -> CONFIG_1)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_1, System.out::println))
                 .build();
         c1.load();
         System.out.println(c1.get());
 
         ReflectiveConfigHolder<Outer> c2 = ReflectiveConfigHolder.builder(Outer.class)
-                .serializer(GsonSerializer.DEFAULT)
-                .loadingAction(() -> CONFIG_2)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_2, System.out::println))
                 .build();
         c2.load();
         System.out.println(c2.get());
     }
 
     @Test
-    void write() {
+    void write() throws Exception {
         ReflectiveConfigHolder<TestBean> c1 = ReflectiveConfigHolder.builder(TestBean.class)
-                .serializer(GsonSerializer.DEFAULT)
-                .savingAction(System.out::println)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_1, System.out::println))
                 .build();
         c1.set(TestBean.getInstance());
         c1.save();
 
         ReflectiveConfigHolder<Outer> c2 = ReflectiveConfigHolder.builder(Outer.class)
-                .serializer(GsonSerializer.DEFAULT)
-                .savingAction(System.out::println)
+                .serializer(GsonConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG_2, System.out::println))
                 .build();
         c2.set(new Outer());
         c2.save();

@@ -1,6 +1,6 @@
 package io.github.blockneko11.config.unified.snakeyaml;
 
-import io.github.blockneko11.config.unified.serialization.Serializer;
+import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -8,13 +8,13 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import java.util.Map;
 
-public class SnakeYamlSerializer implements Serializer {
+public class SnakeYamlConfigSerializer implements ConfigSerializer {
     public static final Yaml DEFAULT_YAML = new Yaml(getDefaultLoaderOptions(), getDefaultDumperOptions());
-    public static final SnakeYamlSerializer DEFAULT = new SnakeYamlSerializer(DEFAULT_YAML);
+    public static final SnakeYamlConfigSerializer DEFAULT = new SnakeYamlConfigSerializer(DEFAULT_YAML);
 
     private final Yaml yaml;
 
-    public SnakeYamlSerializer(Yaml yaml) {
+    public SnakeYamlConfigSerializer(Yaml yaml) {
         this.yaml = yaml;
     }
 

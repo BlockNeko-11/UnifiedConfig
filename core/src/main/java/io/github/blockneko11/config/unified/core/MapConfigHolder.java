@@ -1,18 +1,17 @@
 package io.github.blockneko11.config.unified.core;
 
-import io.github.blockneko11.config.unified.serialization.Serializer;
+import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.source.ConfigSource;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class MapConfigHolder extends ConfigHolder {
     private final Map<String, Object> config = new LinkedHashMap<>();
 
-    private MapConfigHolder(Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
-        super(serializer, loadingAction, savingAction);
+    private MapConfigHolder(ConfigSerializer serializer, ConfigSource source) {
+        super(serializer, source);
     }
 
     public boolean isEmpty() {

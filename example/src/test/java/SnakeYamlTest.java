@@ -1,6 +1,7 @@
 import io.github.blockneko11.config.unified.core.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.conversion.Convertors;
-import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlSerializer;
+import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
+import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,20 +29,20 @@ public class SnakeYamlTest {
     }
 
     @Test
-    void read() {
+    void read() throws Exception {
         ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
-                .serializer(SnakeYamlSerializer.DEFAULT)
-                .loadingAction(() -> CONFIG)
+                .serializer(SnakeYamlConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG, System.out::println))
                 .build();
         binder.load();
         System.out.println(binder.get());
     }
 
     @Test
-    void write() {
+    void write() throws Exception {
         ReflectiveConfigHolder<TestBean> binder = ReflectiveConfigHolder.builder(TestBean.class)
-                .serializer(SnakeYamlSerializer.DEFAULT)
-                .savingAction(System.out::println)
+                .serializer(SnakeYamlConfigSerializer.DEFAULT)
+                .source(new StringConfigSource(() -> CONFIG, System.out::println))
                 .build();
         binder.set(TestBean.getInstance());
         binder.save();

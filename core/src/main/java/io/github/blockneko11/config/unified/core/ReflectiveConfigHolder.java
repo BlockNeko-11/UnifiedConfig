@@ -6,7 +6,8 @@ import io.github.blockneko11.config.unified.property.Id;
 import io.github.blockneko11.config.unified.property.Ignore;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.serialization.Serializer;
+import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.source.ConfigSource;
 import io.github.blockneko11.config.unified.util.ConstructorUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -17,15 +18,14 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<T> {
     private final Class<T> clazz;
     private T instance;
 
-    private ReflectiveConfigHolder(Class<T> clazz, Serializer serializer, Supplier<String> loadingAction, Consumer<String> savingAction) {
-        super(serializer, loadingAction, savingAction);
+    private ReflectiveConfigHolder(Class<T> clazz, ConfigSerializer serializer, ConfigSource source) {
+        super(serializer, source);
         this.clazz = clazz;
     }
 
@@ -206,8 +206,8 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
 
     public static final class Builder<T> extends ConfigHolder.Builder<ReflectiveConfigHolder<T>> {
         private Builder(Class<T> clazz) {
-            super((serializer, loadingAction, savingAction) ->
-                    new ReflectiveConfigHolder<>(clazz, serializer, loadingAction, savingAction));
+            super((serializer, source) ->
+                    new ReflectiveConfigHolder<>(clazz, serializer, source));
         }
     }
 }
