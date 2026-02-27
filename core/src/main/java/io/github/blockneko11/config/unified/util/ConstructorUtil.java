@@ -2,7 +2,7 @@ package io.github.blockneko11.config.unified.util;
 
 import io.github.blockneko11.config.unified.exception.ConfigException;
 
-public final class ConstructorUtils {
+public final class ConstructorUtil {
     public static <T> T newInstance(Class<T> clazz) throws ConfigException {
         try {
             return clazz.getDeclaredConstructor().newInstance();

@@ -9,7 +9,7 @@ import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
-import io.github.blockneko11.config.unified.util.ConstructorUtils;
+import io.github.blockneko11.config.unified.util.ConstructorUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
     }
 
     private static <T> T load0(Class<T> clazz, Map<String, Object> config) throws ConfigException {
-        T instance = ConstructorUtils.newInstance(clazz);
+        T instance = ConstructorUtil.newInstance(clazz);
 
         for (Field f : clazz.getDeclaredFields()) {
             if (f.isAnnotationPresent(Ignore.class)) {
