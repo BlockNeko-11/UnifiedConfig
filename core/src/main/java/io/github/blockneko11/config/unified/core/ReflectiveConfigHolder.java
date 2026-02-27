@@ -66,8 +66,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 f.setAccessible(true);
             }
 
-            String fName = f.isAnnotationPresent(Id.class) ? f.getAnnotation(Id.class).value() : f.getName();
-            Object value = config.get(fName);
+            Object value = config.get(f.getName());
             if (value == null) {
                 continue;
             }
@@ -151,7 +150,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 f.setAccessible(true);
             }
 
-            String fName = f.isAnnotationPresent(Id.class) ? f.getAnnotation(Id.class).value() : f.getName();
+            String fName = f.getName();
 
             try {
                 Class<?> fType = f.getType();
