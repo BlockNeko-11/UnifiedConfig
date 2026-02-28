@@ -4,6 +4,8 @@ import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 public class GsonTest {
     private static final String CONFIG_1 = "{\n" +
             "  \"score\": 100,\n" +
@@ -77,6 +79,14 @@ public class GsonTest {
         try {
             bean.name = "George";
             bean.address = "";
+            c1.save();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            bean.address = "Beijing, China";
+            bean.uuid = UUID.fromString("22222222-2222-2222-2222-222222222222");
             c1.save();
         } catch (ConfigException e) {
             e.printStackTrace();

@@ -6,10 +6,14 @@ import io.github.blockneko11.config.unified.util.ConstructorUtil;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public final class Validations {
+    private static final Map<Class<? extends Predicate<?>>, Predicate<?>> VALIDATORS = new HashMap<>();
+
     public static void validateNull(Field field) throws ValidationException {
         if (field.isAnnotationPresent(NonNull.class)) {
             throw new ValidationException("field " + field.getName() + " is not nullable");
@@ -95,9 +99,13 @@ public final class Validations {
     public static void validateObject(Field field, Object value) throws ConfigException {
         Validator validator = field.getAnnotation(Validator.class);
         if (validator != null) {
-            Class<? extends Predicate<Object>> predicate = (Class<? extends Predicate<Object>>) validator.value();
-            Predicate<Object> instance = ConstructorUtil.newInstance(predicate);
-            if (!instance.test(value)) {
+            Class<? extends Predicate<?>> validatorClass = validator.value();
+            if (!VALIDATORS.containsKey(validatorClass)) {
+                VALIDATORS.put(validatorClass, ConstructorUtil.newInstance(validatorClass));
+            }
+
+            Predicate<Object> predicate = (Predicate<Object>) VALIDATORS.get(validatorClass);
+            if (!predicate.test(value)) {
                 throw new ValidationException("field " + field.getName() + " is not valid");
             }
         }
