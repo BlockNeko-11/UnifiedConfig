@@ -1,7 +1,5 @@
 package io.github.blockneko11.config.unified.reflect;
 
-import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.conversion.Conversion;
 import io.github.blockneko11.config.unified.conversion.Conversions;
 import io.github.blockneko11.config.unified.core.ConfigHolder;
 import io.github.blockneko11.config.unified.core.ConfigHolderBuilder;
@@ -11,7 +9,7 @@ import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
 import io.github.blockneko11.config.unified.util.ConstructorUtil;
-import io.github.blockneko11.config.unified.validation.*;
+import io.github.blockneko11.config.unified.validation.Validations;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,6 +64,11 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 String fieldName = field.getName();
                 Object value = config.get(fieldName);
                 if (value == null) {
+                    Object fieldValue = field.get(instance);
+                    if (fieldValue != null) {
+                        continue;
+                    }
+
                     Validations.validateNull(field);
                     field.set(instance, null);
                     continue;
@@ -119,7 +122,7 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
 
                 Object deserialized = Conversions.deserialize(field, value);
                 if (deserialized == null) {
-                    continue;
+                    throw new ConfigException("cannot deserialize custom field " + fieldName + " because it does not have the @Convertor or the @Nest annotation");
                 }
 
                 Validations.validateObject(field, deserialized);
@@ -209,7 +212,12 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
                 }
 
                 Validations.validateObject(field, value);
-                config.put(fieldName, Conversions.serialize(field, value));
+                Object serialized = Conversions.serialize(field, value);
+                if (serialized == null) {
+                    throw new ConfigException("cannot serialize custom field " + fieldName + " because it does not have the @Convertor or the @Nest annotation");
+                }
+
+                config.put(fieldName, serialized);
             } catch (IllegalAccessException e) {
                 throw new ReflectionException(e);
             }
