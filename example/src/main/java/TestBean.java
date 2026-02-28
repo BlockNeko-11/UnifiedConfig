@@ -1,15 +1,23 @@
-import io.github.blockneko11.config.unified.conversion.Convert;
-import io.github.blockneko11.config.unified.property.Ignore;
+import io.github.blockneko11.config.unified.conversion.Conversion;
+import io.github.blockneko11.config.unified.conversion.UUIDConvertor;
+import io.github.blockneko11.config.unified.validation.NumberRange;
+import io.github.blockneko11.config.unified.validation.StringValidation;
+import io.github.blockneko11.config.unified.validation.Validator;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class TestBean {
+    @NumberRange.IntRange(min = 0, max = 100)
     public int score;
     public long timestamp;
     public float temperature;
     public double distance;
     public boolean debug;
+
+    @StringValidation.Length(min = 1, max = 16)
     public String name;
+
     public List<String> hobby;
     public Map<String, String> info;
 
@@ -20,12 +28,20 @@ public class TestBean {
 
     public Gender gender;
 
-    @Convert
+    @Conversion(UUIDConvertor.class)
+    @Validator(UUIDValidator.class)
     public UUID uuid;
 
-    @Ignore
-    public int transientField;
+    public static final class UUIDValidator implements Predicate<UUID> {
+        @Override
+        public boolean test(UUID value) {
+            return !value.toString().equals("22222222-2222-2222-2222-222222222222");
+        }
+    }
 
+    public transient int transientField;
+
+    @StringValidation.NonEmpty
     public String address;
 
     @Override

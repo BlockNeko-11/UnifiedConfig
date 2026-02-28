@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.property;
+package io.github.blockneko11.config.unified.validation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Ignore {
+public @interface NonNull {
 }

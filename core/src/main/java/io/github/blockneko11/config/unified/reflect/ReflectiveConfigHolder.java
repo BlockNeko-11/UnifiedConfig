@@ -1,24 +1,21 @@
 package io.github.blockneko11.config.unified.reflect;
 
+import io.github.blockneko11.config.unified.conversion.Conversions;
 import io.github.blockneko11.config.unified.core.ConfigHolder;
-import io.github.blockneko11.config.unified.conversion.ConfigConvertor;
-import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
-import io.github.blockneko11.config.unified.conversion.Convert;
-import io.github.blockneko11.config.unified.property.Ignore;
+import io.github.blockneko11.config.unified.core.ConfigHolderBuilder;
+import io.github.blockneko11.config.unified.exception.ReflectionException;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
 import io.github.blockneko11.config.unified.source.ConfigSource;
-import io.github.blockneko11.config.unified.util.ConstructorUtils;
+import io.github.blockneko11.config.unified.util.ConstructorUtil;
+import io.github.blockneko11.config.unified.validation.Validations;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<T> {
@@ -51,73 +48,87 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
     }
 
     private static <T> T load0(Class<T> clazz, Map<String, Object> config) throws ConfigException {
-        T instance = ConstructorUtils.newInstance(clazz);
+        T instance = ConstructorUtil.newInstance(clazz);
 
-        for (Field f : clazz.getDeclaredFields()) {
-            if (f.isAnnotationPresent(Ignore.class)) {
+        for (Field field : clazz.getDeclaredFields()) {
+            int mod = field.getModifiers();
+            if (Modifier.isStatic(mod) || Modifier.isFinal(mod) || Modifier.isTransient(mod)) {
                 continue;
             }
 
-            int mod = f.getModifiers();
-            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
-                continue;
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
             }
-
-            if (f.isAccessible()) {
-                f.setAccessible(true);
-            }
-
-            Object value = config.get(f.getName());
-            if (value == null) {
-                continue;
-            }
-
-            Class<?> fType = f.getType();
 
             try {
-                if (fType == int.class) {
-                    f.setInt(instance, ((Number) value).intValue());
+                String fieldName = field.getName();
+                Object value = config.get(fieldName);
+                if (value == null) {
+                    Object fieldValue = field.get(instance);
+                    if (fieldValue != null) {
+                        continue;
+                    }
+
+                    Validations.validateNull(field);
+                    field.set(instance, null);
                     continue;
-                } else if (fType == long.class) {
-                    f.setLong(instance, ((Number) value).longValue());
+                }
+
+                Class<?> fieldType = field.getType();
+
+                if (fieldType == int.class) {
+                    int i = ((Number) value).intValue();
+                    Validations.validateInt(field, i);
+                    field.setInt(instance, i);
                     continue;
-                } else if (fType == float.class) {
-                    f.setFloat(instance, ((Number) value).floatValue());
+                } if (fieldType == long.class) {
+                    long l = ((Number) value).longValue();
+                    Validations.validateLong(field, l);
                     continue;
-                } else if (fType == double.class) {
-                    f.setDouble(instance, ((Number) value).doubleValue());
+                } if (fieldType == float.class) {
+                    float f = ((Number) value).floatValue();
+                    Validations.validateFloat(field, f);
                     continue;
-                } else if (fType == boolean.class) {
-                    f.setBoolean(instance, (boolean) value);
+                } if (fieldType == double.class) {
+                    double d = ((Number) value).doubleValue();
+                    Validations.validateDouble(field, d);
                     continue;
-                } else if (fType == String.class || fType == List.class || fType == Map.class) {
-                    f.set(instance, value);
+                } if (fieldType == boolean.class) {
+                    field.setBoolean(instance, (boolean) value);
                     continue;
-                } else if (fType.isEnum()) {
-                    f.set(instance, Enum.valueOf((Class<? extends Enum>) fType, (String) value));
+                } if (fieldType == char.class || fieldType == byte.class || fieldType == short.class) {
+                    throw new ConfigException("char, byte and short are not supported");
+                } if (fieldType == String.class) {
+                    String s = (String) value;
+                    Validations.validateString(field, s);
+                    field.set(instance, s);
                     continue;
-                } else if (fType.isArray()) {
-                    throw new IllegalArgumentException("use List instead of array");
-                } else if (f.isAnnotationPresent(Nest.class)) {
+                } if (fieldType == List.class || fieldType == Map.class) {
+                    field.set(instance, value);
+                    continue;
+                } if (fieldType.isEnum()) {
+                    field.set(instance, Enum.valueOf((Class<? extends Enum>) fieldType, (String) value));
+                    continue;
+                } if (fieldType.isArray()) {
+                    throw new ConfigException("use List instead of array");
+                } if (field.isAnnotationPresent(Nest.class)) {
                     if (!(value instanceof Map)) {
-                        continue;
+                        throw new ConfigException("config value of key " + fieldName + " is not a map");
                     }
 
-                    Object o = load0(fType, (Map<String, Object>) value);
-                    if (o == null) {
-                        continue;
-                    }
-
-                    f.set(instance, o);
+                    field.set(instance, load0(fieldType, (Map<String, Object>) value));
                     continue;
                 }
 
-                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-                    ConfigConvertor<?> convertor = ConfigConvertors.get(fType);
-                    f.set(instance, convertor.toTarget(value));
+                Object deserialized = Conversions.deserialize(field, value);
+                if (deserialized == null) {
+                    throw new ConfigException("cannot deserialize custom field " + fieldName + " because it does not have the @Convertor or the @Nest annotation");
                 }
+
+                Validations.validateObject(field, deserialized);
+                field.set(instance, deserialized);
             } catch (IllegalAccessException e) {
-                throw new ConfigException(e);
+                throw new ReflectionException(e);
             }
         }
 
@@ -135,72 +146,93 @@ public class ReflectiveConfigHolder<T> extends ConfigHolder implements Supplier<
         }
 
         Map<String, Object> config = new LinkedHashMap<>();
-        for (Field f : clazz.getDeclaredFields()) {
-            if (f.isAnnotationPresent(Ignore.class)) {
+        for (Field field : clazz.getDeclaredFields()) {
+            int mod = field.getModifiers();
+            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)|| Modifier.isTransient(mod)) {
                 continue;
             }
 
-            int mod = f.getModifiers();
-            if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
-                continue;
+            if (!field.isAccessible()) {
+                field.setAccessible(true);
             }
-
-            if (f.isAccessible()) {
-                f.setAccessible(true);
-            }
-
-            String fName = f.getName();
 
             try {
-                Class<?> fType = f.getType();
-                Object value = f.get(instance);
+                Class<?> fieldType = field.getType();
+                String fieldName = field.getName();
+                Object value = field.get(instance);
 
                 if (value == null) {
+                    Validations.validateNull(field);
+                    config.put(fieldName, null);
                     continue;
-                }
-
-                if (fType == int.class ||
-                        fType == long.class ||
-                        fType == float.class ||
-                        fType == double.class ||
-                        fType == boolean.class ||
-                        fType == String.class ||
-                        fType == List.class ||
-                        fType == Map.class) {
-                    config.put(fName, value);
+                } if (fieldType == int.class) {
+                    int i = field.getInt(instance);
+                    Validations.validateInt(field, i);
+                    config.put(fieldName, i);
                     continue;
-                } else if (fType.isEnum()) {
-                    config.put(fName, ((Enum<?>) value).name());
+                } if (fieldType == long.class) {
+                    long l = field.getLong(instance);
+                    Validations.validateLong(field, l);
+                    config.put(fieldName, l);
                     continue;
-                } else if (fType.isArray()) {
-                    throw new IllegalArgumentException("use List instead of array");
-                } else if (f.isAnnotationPresent(Nest.class)) {
-                    Map<String, Object> map = save0((Class) fType, value);
+                } if (fieldType == float.class) {
+                    float f = field.getFloat(instance);
+                    Validations.validateFloat(field, f);
+                    config.put(fieldName, f);
+                    continue;
+                } if (fieldType == double.class) {
+                    double d = field.getDouble(instance);
+                    Validations.validateDouble(field, d);
+                    config.put(fieldName, d);
+                    continue;
+                } if (fieldType == char.class || fieldType == byte.class || fieldType == short.class) {
+                    throw new ConfigException("char, byte and short are not supported");
+                } if (fieldType == String.class) {
+                    String s = (String) value;
+                    Validations.validateString(field, s);
+                    config.put(fieldName, s);
+                    continue;
+                } if (fieldType == boolean.class || fieldType == List.class || fieldType == Map.class) {
+                    config.put(fieldName, value);
+                    continue;
+                } if (fieldType.isEnum()) {
+                    config.put(fieldName, ((Enum<?>) value).name());
+                    continue;
+                } if (fieldType.isArray()) {
+                    throw new ConfigException("use List instead of array");
+                } if (field.isAnnotationPresent(Nest.class)) {
+                    Map<String, Object> map = save0((Class) fieldType, value);
 
                     if (map.isEmpty()) {
                         continue;
                     }
 
-                    config.put(fName, map);
+                    config.put(fieldName, map);
+                    continue;
                 }
 
-                if (f.isAnnotationPresent(Convert.class) && ConfigConvertors.has(fType)) {
-                    ConfigConvertor convertor = ConfigConvertors.get(fType);
-                    config.put(fName, convertor.toSerialized(value));
+                Validations.validateObject(field, value);
+                Object serialized = Conversions.serialize(field, value);
+                if (serialized == null) {
+                    throw new ConfigException("cannot serialize custom field " + fieldName + " because it does not have the @Convertor or the @Nest annotation");
                 }
+
+                config.put(fieldName, serialized);
             } catch (IllegalAccessException e) {
-                throw new ConfigException(e);
+                throw new ReflectionException(e);
             }
         }
 
         return config;
     }
 
+
+
     public static <T> Builder<T> builder(Class<T> clazz) {
         return new Builder<>(clazz);
     }
 
-    public static final class Builder<T> extends ConfigHolder.Builder<ReflectiveConfigHolder<T>> {
+    public static final class Builder<T> extends ConfigHolderBuilder<ReflectiveConfigHolder<T>> {
         private Builder(Class<T> clazz) {
             super((serializer, source) ->
                     new ReflectiveConfigHolder<>(clazz, serializer, source));

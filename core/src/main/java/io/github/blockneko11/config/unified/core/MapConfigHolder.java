@@ -19,8 +19,12 @@ public class MapConfigHolder extends ConfigHolder {
         return this.config.isEmpty();
     }
 
-    public boolean hasKey(String key) {
+    public boolean has(String key) {
         return this.config.containsKey(key);
+    }
+
+    public void clear() {
+        this.config.clear();
     }
 
     public void set(String key, Object value) {
@@ -36,8 +40,20 @@ public class MapConfigHolder extends ConfigHolder {
         return (T) this.config.get(key);
     }
 
+    public <T> T get(String key, Class<T> clazz) {
+        return clazz.cast(this.config.get(key));
+    }
+
     public <T> T get(String key, T defaultValue) {
-        return this.hasKey(key) ? (T) this.config.get(key) : defaultValue;
+        return this.has(key) ? (T) this.config.get(key) : defaultValue;
+    }
+
+    public <T> T get(String key, Class<T> clazz, T defaultValue) {
+        if (!this.has(key)) {
+            return defaultValue;
+        }
+
+        return clazz.cast(this.config.get(key));
     }
 
     public int getInt(String key) {
@@ -114,7 +130,7 @@ public class MapConfigHolder extends ConfigHolder {
 
     public void merge(Map<String, Object> another, boolean replace) {
         for (Map.Entry<String, Object> entry : another.entrySet()) {
-            if (replace || !this.hasKey(entry.getKey())) {
+            if (replace || !this.has(entry.getKey())) {
                 this.set(entry.getKey(), entry.getValue());
             }
         }
@@ -134,13 +150,7 @@ public class MapConfigHolder extends ConfigHolder {
         return this.config;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder extends ConfigHolder.Builder<MapConfigHolder> {
-        private Builder() {
-            super(MapConfigHolder::new);
-        }
+    public static ConfigHolderBuilder<MapConfigHolder> builder() {
+        return ConfigHolderBuilder.of(MapConfigHolder::new);
     }
 }

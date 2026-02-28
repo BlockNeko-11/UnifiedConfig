@@ -1,11 +1,11 @@
 package io.github.blockneko11.config.unified.serialization;
 
-import io.github.blockneko11.config.unified.exception.ConfigSerializationException;
+import io.github.blockneko11.config.unified.exception.SerializationException;
 
 import java.util.Map;
 
 public interface ConfigSerializer {
-    Map<String, Object> deserialize(String config) throws ConfigSerializationException;
+    Map<String, Object> deserialize(String config) throws SerializationException;
 
-    String serialize(Map<String, Object> config) throws ConfigSerializationException;
+    String serialize(Map<String, Object> config) throws SerializationException;
 }

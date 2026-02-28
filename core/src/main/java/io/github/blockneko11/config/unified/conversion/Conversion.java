@@ -7,5 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Convert {
+public @interface Conversion {
+    Class<? extends ConfigConvertor<?, ?>> value();
 }

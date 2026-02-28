@@ -1,9 +1,6 @@
-import io.github.blockneko11.config.unified.conversion.UUIDConfigConvertor;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
-import io.github.blockneko11.config.unified.conversion.ConfigConvertors;
 import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class SnakeYamlTest {
@@ -23,11 +20,6 @@ public class SnakeYamlTest {
             "gender: MALE\n" +
             "uuid: 11111111-1111-1111-1111-111111111111\n" +
             "add: Beijing, China";
-
-    @BeforeEach
-    void setup() {
-        ConfigConvertors.register(new UUIDConfigConvertor());
-    }
 
     @Test
     void read() throws Exception {
