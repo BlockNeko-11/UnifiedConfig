@@ -20,7 +20,7 @@ public final class Validations {
         NumberRange.IntRange range = field.getAnnotation(NumberRange.IntRange.class);
         if (range != null) {
             if (value < range.min() || value > range.max()) {
-                throw new ValidationException("field " + field.getName() + " is out of range");
+                throw new ValidationException("int field " + field.getName() + " is out of range (" + range.min() + ", " + range.max() + ")");
             }
         }
     }
@@ -29,7 +29,7 @@ public final class Validations {
         NumberRange.LongRange range = field.getAnnotation(NumberRange.LongRange.class);
         if (range != null) {
             if (value < range.min() || value > range.max()) {
-                throw new ValidationException("field " + field.getName() + " is out of range");
+                throw new ValidationException("long field " + field.getName() + " is out of range (" + range.min() + ", " + range.max() + ")");
             }
         }
     }
@@ -38,7 +38,7 @@ public final class Validations {
         NumberRange.FloatRange range = field.getAnnotation(NumberRange.FloatRange.class);
         if (range != null) {
             if (value < range.min() || value > range.max()) {
-                throw new ValidationException("field " + field.getName() + " is out of range");
+                throw new ValidationException("float field " + field.getName() + " is out of range (" + range.min() + ", " + range.max() + ")");
             }
         }
     }
@@ -47,24 +47,45 @@ public final class Validations {
         NumberRange.DoubleRange range = field.getAnnotation(NumberRange.DoubleRange.class);
         if (range != null) {
             if (value < range.min() || value > range.max()) {
-                throw new ValidationException("field " + field.getName() + " is out of range");
+                throw new ValidationException("double field " + field.getName() + " is out of range (" + range.min() + ", " + range.max() + ")");
             }
         }
     }
 
     public static void validateString(Field field, String value) throws ConfigException {
-        StringValidator.InArray inArray = field.getAnnotation(StringValidator.InArray.class);
+        StringValidation.InArray inArray = field.getAnnotation(StringValidation.InArray.class);
         if (inArray != null) {
             List<String> list = Arrays.asList(inArray.value());
             if (!list.contains(value)) {
-                throw new ValidationException("field " + field.getName() + " is not in specific value. Specific values: " + list);
+                throw new ValidationException("string field " + field.getName() + " is not in specific value. Specific values: " + list);
             }
         }
 
-        StringValidator.Regex regex = field.getAnnotation(StringValidator.Regex.class);
+        StringValidation.Regex regex = field.getAnnotation(StringValidation.Regex.class);
         if (regex != null) {
             if (!value.matches(regex.value())) {
-                throw new ValidationException("field " + field.getName() + " does not match regex " + regex.value());
+                throw new ValidationException("string field " + field.getName() + " does not match regex " + regex.value());
+            }
+        }
+
+        StringValidation.NonEmpty nonEmpty = field.getAnnotation(StringValidation.NonEmpty.class);
+        if (nonEmpty != null) {
+            if (value.isEmpty()) {
+                throw new ValidationException("string field " + field.getName() + " is empty");
+            }
+        }
+
+        StringValidation.Length length = field.getAnnotation(StringValidation.Length.class);
+        int i = value.length();
+        if (length != null) {
+            int min = length.min();
+            int max = length.max();
+            if (i < min) {
+                throw new ValidationException("the length of string field " + field.getName() + " is less than " + min);
+            }
+
+            if (i > max) {
+                throw new ValidationException("the length of string field " + field.getName() + " is greater than " + max);
             }
         }
 

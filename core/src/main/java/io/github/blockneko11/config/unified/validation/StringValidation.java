@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-public final class StringValidator {
+public final class StringValidation {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public @interface InArray {
@@ -16,5 +16,17 @@ public final class StringValidator {
     @Target(ElementType.FIELD)
     public @interface Regex {
         String value();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface NonEmpty {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface Length {
+        int min() default 0;
+        int max() default Integer.MAX_VALUE;
     }
 }

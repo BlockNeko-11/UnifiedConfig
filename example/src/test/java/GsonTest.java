@@ -1,3 +1,4 @@
+import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
 import io.github.blockneko11.config.unified.source.StringConfigSource;
@@ -54,8 +55,32 @@ public class GsonTest {
                 .serializer(GsonConfigSerializer.DEFAULT)
                 .source(new StringConfigSource(() -> CONFIG_1, System.out::println))
                 .build();
-        c1.set(TestBean.getInstance());
+        TestBean bean = TestBean.getInstance();
+        c1.set(bean);
         c1.save();
+
+        try {
+            bean.score++;
+            c1.save();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            bean.score--;
+            bean.name = "AAAAAAAAAAAAAAAAAA";
+            c1.save();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            bean.name = "George";
+            bean.address = "";
+            c1.save();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
 
         ReflectiveConfigHolder<Outer> c2 = ReflectiveConfigHolder.builder(Outer.class)
                 .serializer(GsonConfigSerializer.DEFAULT)

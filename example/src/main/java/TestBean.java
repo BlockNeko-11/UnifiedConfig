@@ -1,15 +1,21 @@
 import io.github.blockneko11.config.unified.conversion.Conversion;
 import io.github.blockneko11.config.unified.conversion.UUIDConvertor;
+import io.github.blockneko11.config.unified.validation.NumberRange;
+import io.github.blockneko11.config.unified.validation.StringValidation;
 
 import java.util.*;
 
 public class TestBean {
+    @NumberRange.IntRange(min = 0, max = 100)
     public int score;
     public long timestamp;
     public float temperature;
     public double distance;
     public boolean debug;
+
+    @StringValidation.Length(min = 1, max = 16)
     public String name;
+
     public List<String> hobby;
     public Map<String, String> info;
 
@@ -25,6 +31,7 @@ public class TestBean {
 
     public transient int transientField;
 
+    @StringValidation.NonEmpty
     public String address;
 
     @Override
