@@ -2,7 +2,7 @@ dependencies {
     implementation project(":core")
 
     implementation project(":gson")
-    testRuntimeOnly "com.google.code.gson:gson:2.13.1"
+    testRuntimeOnly "com.google.code.gson:gson:2.13.2"
 
     implementation project(":snakeyaml")
     testRuntimeOnly "org.yaml:snakeyaml:2.4"
