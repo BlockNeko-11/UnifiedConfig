@@ -4,19 +4,18 @@ import io.github.blockneko11.config.unified.exception.ConversionException;
 
 import java.util.UUID;
 
-public class UUIDConvertor implements ConfigConvertor<UUID, String> {
+public class UUIDConvertor implements ConfigConvertor<UUID> {
     @Override
-    public Class<String> getOriginalType() {
-        return String.class;
+    public UUID deserialize(Object config) throws ConversionException {
+        if (!(config instanceof String)) {
+            throw new ConversionException("config value is not a string");
+        }
+
+        return UUID.fromString((String) config);
     }
 
     @Override
-    public UUID deserialize(String config) throws ConversionException {
-        return UUID.fromString(config);
-    }
-
-    @Override
-    public String serialize(UUID field) throws ConversionException {
+    public Object serialize(UUID field) throws ConversionException {
         return field.toString();
     }
 }

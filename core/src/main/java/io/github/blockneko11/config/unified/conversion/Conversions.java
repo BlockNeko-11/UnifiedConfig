@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Conversions {
-    private static final Map<Class<? extends ConfigConvertor<?, ?>>, ConfigConvertor<?, ?>> CONVERTORS = new HashMap<>();
+    private static final Map<Class<? extends ConfigConvertor<?>>, ConfigConvertor<?>> CONVERTORS = new HashMap<>();
 
     public static <T> T deserialize(Field field, Object value) throws ConfigException {
         Conversion anno = field.getAnnotation(Conversion.class);
@@ -16,17 +16,12 @@ public final class Conversions {
             return null;
         }
 
-        Class<?> valueType = value.getClass();
-        Class<? extends ConfigConvertor<?, ?>> convertorClass = anno.value();
+        Class<? extends ConfigConvertor<?>> convertorClass = anno.value();
         if (!CONVERTORS.containsKey(convertorClass)) {
             CONVERTORS.put(convertorClass, ConstructorUtil.newInstance(convertorClass));
         }
 
-        ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) CONVERTORS.get(convertorClass);
-        if (!convertor.getOriginalType().isAssignableFrom(valueType)) {
-            throw new IllegalArgumentException("config type " + valueType + " is not assignable from " + convertor.getOriginalType());
-        }
-
+        ConfigConvertor<Object> convertor = (ConfigConvertor<Object>) CONVERTORS.get(convertorClass);
         return (T) convertor.deserialize(value);
     }
 
@@ -36,12 +31,12 @@ public final class Conversions {
             return null;
         }
 
-        Class<? extends ConfigConvertor<?, ?>> convertorClass = anno.value();
+        Class<? extends ConfigConvertor<?>> convertorClass = anno.value();
         if (!CONVERTORS.containsKey(convertorClass)) {
             CONVERTORS.put(convertorClass, ConstructorUtil.newInstance(convertorClass));
         }
 
-        ConfigConvertor<Object, Object> convertor = (ConfigConvertor<Object, Object>) CONVERTORS.get(convertorClass);
+        ConfigConvertor<Object> convertor = (ConfigConvertor<Object>) CONVERTORS.get(convertorClass);
         return convertor.serialize(value);
     }
 
