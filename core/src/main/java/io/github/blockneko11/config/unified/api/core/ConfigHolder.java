@@ -1,8 +1,8 @@
-package io.github.blockneko11.config.unified.core;
+package io.github.blockneko11.config.unified.api.core;
 
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
-import io.github.blockneko11.config.unified.source.ConfigSource;
+import io.github.blockneko11.config.unified.api.serializer.ConfigSerializer;
+import io.github.blockneko11.config.unified.api.source.ConfigSource;
 
 public abstract class ConfigHolder {
     protected final ConfigSerializer serializer;

@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.serialization;
+package io.github.blockneko11.config.unified.api.serializer;
 
 import io.github.blockneko11.config.unified.exception.SerializationException;
 

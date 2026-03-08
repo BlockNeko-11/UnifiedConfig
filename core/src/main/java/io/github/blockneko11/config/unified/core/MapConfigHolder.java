@@ -1,8 +1,9 @@
 package io.github.blockneko11.config.unified.core;
 
+import io.github.blockneko11.config.unified.api.core.ConfigHolder;
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
-import io.github.blockneko11.config.unified.source.ConfigSource;
+import io.github.blockneko11.config.unified.api.serializer.ConfigSerializer;
+import io.github.blockneko11.config.unified.api.source.ConfigSource;
 
 import java.util.LinkedHashMap;
 import java.util.List;

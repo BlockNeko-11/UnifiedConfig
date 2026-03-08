@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.conversion;
+package io.github.blockneko11.config.unified.api.convert;
 
 import io.github.blockneko11.config.unified.exception.ConversionException;
 

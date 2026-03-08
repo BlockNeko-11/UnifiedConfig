@@ -1,5 +1,6 @@
-package io.github.blockneko11.config.unified.source;
+package source;
 
+import io.github.blockneko11.config.unified.api.source.ConfigSource;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 
 import java.util.function.Consumer;

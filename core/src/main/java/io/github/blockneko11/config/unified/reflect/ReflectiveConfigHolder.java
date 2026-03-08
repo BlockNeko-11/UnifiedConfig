@@ -1,13 +1,13 @@
 package io.github.blockneko11.config.unified.reflect;
 
 import io.github.blockneko11.config.unified.conversion.Conversions;
-import io.github.blockneko11.config.unified.core.ConfigHolder;
+import io.github.blockneko11.config.unified.api.core.ConfigHolder;
 import io.github.blockneko11.config.unified.core.ConfigHolderBuilder;
 import io.github.blockneko11.config.unified.exception.ReflectionException;
 import io.github.blockneko11.config.unified.property.Nest;
 import io.github.blockneko11.config.unified.exception.ConfigException;
-import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
-import io.github.blockneko11.config.unified.source.ConfigSource;
+import io.github.blockneko11.config.unified.api.serializer.ConfigSerializer;
+import io.github.blockneko11.config.unified.api.source.ConfigSource;
 import io.github.blockneko11.config.unified.util.ConstructorUtil;
 import io.github.blockneko11.config.unified.validation.Validations;
 import org.jetbrains.annotations.ApiStatus;

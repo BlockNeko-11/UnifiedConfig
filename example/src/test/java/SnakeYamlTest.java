@@ -1,6 +1,6 @@
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.snakeyaml.SnakeYamlConfigSerializer;
-import io.github.blockneko11.config.unified.source.StringConfigSource;
+import source.StringConfigSource;
 import org.junit.jupiter.api.Test;
 
 public class SnakeYamlTest {

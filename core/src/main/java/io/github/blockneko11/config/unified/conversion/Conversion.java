@@ -1,5 +1,7 @@
 package io.github.blockneko11.config.unified.conversion;
 
+import io.github.blockneko11.config.unified.api.convert.ConfigConvertor;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

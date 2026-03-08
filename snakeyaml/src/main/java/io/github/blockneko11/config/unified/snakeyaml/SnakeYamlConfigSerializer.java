@@ -1,7 +1,7 @@
 package io.github.blockneko11.config.unified.snakeyaml;
 
 import io.github.blockneko11.config.unified.exception.SerializationException;
-import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.api.serializer.ConfigSerializer;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;

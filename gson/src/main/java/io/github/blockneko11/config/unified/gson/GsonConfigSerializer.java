@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.github.blockneko11.config.unified.exception.SerializationException;
-import io.github.blockneko11.config.unified.serialization.ConfigSerializer;
+import io.github.blockneko11.config.unified.api.serializer.ConfigSerializer;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
 import io.github.blockneko11.config.unified.exception.ConfigException;
 import io.github.blockneko11.config.unified.reflect.ReflectiveConfigHolder;
 import io.github.blockneko11.config.unified.gson.GsonConfigSerializer;
-import io.github.blockneko11.config.unified.source.StringConfigSource;
+import source.StringConfigSource;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

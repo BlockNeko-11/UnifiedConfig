@@ -1,4 +1,4 @@
-package io.github.blockneko11.config.unified.source;
+package io.github.blockneko11.config.unified.api.source;
 
 import io.github.blockneko11.config.unified.exception.ConfigException;
 
