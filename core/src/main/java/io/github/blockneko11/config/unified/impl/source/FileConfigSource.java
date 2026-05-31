@@ -1,6 +1,6 @@
 package io.github.blockneko11.config.unified.impl.source;
 
-import io.github.blockneko11.config.unified.api.source.FileConfigSource;
+import io.github.blockneko11.config.unified.api.source.IFileConfigSource;
 import io.github.blockneko11.config.unified.exception.ConfigException;
 
 import java.io.File;
@@ -10,18 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class FileConfigSourceImpl implements FileConfigSource {
+public class FileConfigSource implements IFileConfigSource {
     private final Path file;
 
-    public FileConfigSourceImpl(String file) {
+    public FileConfigSource(String file) {
         this(new File(file));
     }
 
-    public FileConfigSourceImpl(File file) {
+    public FileConfigSource(File file) {
         this(file.toPath());
     }
 
-    public FileConfigSourceImpl(Path file) {
+    public FileConfigSource(Path file) {
         this.file = file;
     }
 
