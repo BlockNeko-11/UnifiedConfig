@@ -37,7 +37,7 @@ jobs:
 
       - name: upload test reports if test failed
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Test Reports
           path: |
@@ -50,7 +50,7 @@ jobs:
         run: ./gradlew clean build -xtest --stacktrace --no-daemon
 
       - name: capture build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Artifacts
           path: |
