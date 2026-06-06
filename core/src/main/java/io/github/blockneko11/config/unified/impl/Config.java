@@ -87,8 +87,28 @@ public class Config implements IConfig {
     }
 
     @Override
+    public void set(String key, Object o) {
+        this.config.put(key, o);
+    }
+
+    @Override
+    public void reset() {
+        this.config.clear();
+    }
+
+    @Override
+    public void clear() {
+        this.config.clear();
+    }
+
+    @Override
     public void load(IConfigSource source, IConfigSerializer serializer) throws ConfigException {
-        this.config = serializer.toMap(source.load());
+        String c = source.load();
+        if (c == null || c.isEmpty()) {
+            return;
+        }
+
+        this.config = serializer.toMap(c);
     }
 
     @Override

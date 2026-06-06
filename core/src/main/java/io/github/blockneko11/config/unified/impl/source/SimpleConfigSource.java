@@ -6,11 +6,11 @@ import io.github.blockneko11.config.unified.exception.ConfigException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ConfigSource implements IConfigSource {
+public class SimpleConfigSource implements IConfigSource {
     private final Supplier<String> loadingAction;
     private final Consumer<String> savingAction;
 
-    public ConfigSource(Supplier<String> loadingAction, Consumer<String> savingAction) {
+    public SimpleConfigSource(Supplier<String> loadingAction, Consumer<String> savingAction) {
         this.loadingAction = loadingAction;
         this.savingAction = savingAction;
     }

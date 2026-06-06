@@ -60,6 +60,18 @@ public interface IConfig {
         return isPresent(key) ? get(key) : defaultValue;
     }
 
+    void set(String key, Object o);
+
+    default void setIfAbsent(String key, Object o) {
+        if (!isPresent(key)) {
+            set(key, o);
+        }
+    }
+
+    void reset();
+
+    void clear();
+
     void load(IConfigSource source, IConfigSerializer serializer) throws ConfigException;
 
     void save(IConfigSource source, IConfigSerializer serializer) throws ConfigException;

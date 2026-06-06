@@ -2,6 +2,7 @@ package io.github.blockneko11.config.unified.impl.source;
 
 import io.github.blockneko11.config.unified.api.source.IFileConfigSource;
 import io.github.blockneko11.config.unified.exception.ConfigException;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,13 @@ public class FileConfigSource implements IFileConfigSource {
         return this.file;
     }
 
+    @Nullable
     @Override
     public String load() throws ConfigException {
+        if (!Files.exists(this.getFile())) {
+            return null;
+        }
+
         try {
             List<String> lines = Files.readAllLines(this.getFile(), StandardCharsets.UTF_8);
             return String.join("\n", lines);
@@ -43,6 +49,7 @@ public class FileConfigSource implements IFileConfigSource {
     @Override
     public void save(String config) throws ConfigException {
         try {
+            Files.createDirectories(this.getFile().getParent());
             Files.write(this.getFile(), config.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new ConfigException(e);

@@ -1,5 +1,6 @@
 dependencies {
     api project(":core")
+
     compileOnly "com.google.code.gson:gson:2.13.1"
     testImplementation "com.google.code.gson:gson:2.13.1"
 }
