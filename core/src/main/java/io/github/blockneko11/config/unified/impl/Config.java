@@ -108,7 +108,7 @@ public class Config implements IConfig {
             return;
         }
 
-        this.config = serializer.toMap(c);
+        this.config = new LinkedHashMap<>(serializer.toMap(c));
     }
 
     @Override
