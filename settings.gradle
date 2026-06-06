@@ -1,7 +1,8 @@
 def subprojectDirs = [
         ":core",
         ":gson",
-        ":snakeyaml"
+        ":snakeyaml",
+        ":toml4j"
 ]
 
 subprojectDirs.each {
