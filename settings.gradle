@@ -1,6 +1,5 @@
 def subprojectDirs = [
         ":core",
-        ":example",
         ":gson",
         ":snakeyaml"
 ]

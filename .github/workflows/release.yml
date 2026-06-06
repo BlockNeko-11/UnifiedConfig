@@ -1,12 +1,9 @@
-name: Build CI
+name: Release CI
 
 on:
   push:
-    branches-ignore:
-      - 'main'
-  pull_request:
     branches:
-      - '**'
+      - 'main'
 
 jobs:
   build:
@@ -38,11 +35,19 @@ jobs:
       - name: build
         run: ./gradlew clean build -xtest --stacktrace --no-daemon
 
-      - name: capture build artifacts
-        uses: actions/upload-artifact@v4
+      - name: read gradle.properties
+        id: prop_info
+        uses: christian-draeger/read-properties@1.1.1
         with:
-          name: Artifacts
-          path: |
-            core/build/libs/
-            gson/build/libs/
-            snakeyaml/build/libs/
+          path: gradle.properties
+          properties: "artifact_version"
+
+      - name: create github release
+        if: github.repository_owner == 'BlockNeko-11'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.prop_info.outputs.artifact_version }}"
+          tag_name: "${{ steps.prop_info.outputs.artifact_version }}"
+          target_commitish: ${{ github.event.ref }}
+          generate_release_notes: true
+          token: ${{ secrets.RELEASE_TOKEN }}
