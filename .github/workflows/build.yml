@@ -35,6 +35,17 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: ./gradlew clean test --stacktrace --no-daemon
 
+      - name: upload test reports if test failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Reports
+          path: |
+            gson/build/reports/tests/test/
+            jackson/build/reports/tests/test/
+            snakeyaml/build/reports/tests/test/
+            toml4j/build/reports/tests/test/
+
       - name: build
         run: ./gradlew clean build -xtest --stacktrace --no-daemon
 
@@ -45,4 +56,6 @@ jobs:
           path: |
             core/build/libs/
             gson/build/libs/
+            jackson/build/libs/
             snakeyaml/build/libs/
+            toml4j/build/libs/
